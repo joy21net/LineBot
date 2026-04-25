@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LinguaLine — 번역 × 학습 × 연결</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=DM+Serif+Display:ital@0;1&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green: #06C755;
+  --green-dark: #04A344;
+  --green-light: #E8FBF0;
+  --black: #111111;
+  --charcoal: #222222;
+  --gray: #888888;
+  --light: #F5F5F5;
+  --white: #FFFFFF;
+  --accent: #FF6B35;
+  --blue: #3B82F6;
+  --yellow: #FBBF24;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+  background: var(--white);
+  color: var(--black);
+  overflow-x: hidden;
+}
+
+/* ─── NAV ─── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(0,0,0,0.07);
+  padding: 0 32px;
+  height: 60px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav-logo {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.5rem;
+  color: var(--green);
+  letter-spacing: -0.5px;
+}
+.nav-logo span { color: var(--black); }
+.nav-links { display: flex; gap: 28px; align-items: center; }
+.nav-links a {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--charcoal);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--green); }
+.nav-cta {
+  background: var(--green);
+  color: var(--white) !important;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-weight: 700 !important;
+}
+.nav-cta:hover { background: var(--green-dark); color: var(--white) !important; }
+
+/* ─── HERO ─── */
+.hero {
+  min-height: 100vh;
+  background: var(--black);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  padding: 100px 80px 60px;
+  gap: 60px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -200px; right: -200px;
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(6,199,85,0.15) 0%, transparent 70%);
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: -150px; left: 30%;
+  width: 400px; height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,107,53,0.08) 0%, transparent 70%);
+}
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(6,199,85,0.15);
+  border: 1px solid rgba(6,199,85,0.3);
+  color: var(--green);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-bottom: 24px;
+}
+.hero-tag::before {
+  content: '';
+  width: 6px; height: 6px;
+  background: var(--green);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.4); }
+}
+.hero h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(2.8rem, 5vw, 4.2rem);
+  color: var(--white);
+  line-height: 1.1;
+  margin-bottom: 24px;
+}
+.hero h1 em {
+  font-style: italic;
+  color: var(--green);
+}
+.hero p {
+  font-size: 1.05rem;
+  color: rgba(255,255,255,0.6);
+  line-height: 1.8;
+  margin-bottom: 40px;
+  max-width: 480px;
+}
+.hero-btns { display: flex; gap: 14px; flex-wrap: wrap; }
+.btn-primary {
+  background: var(--green);
+  color: var(--white);
+  padding: 14px 32px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+.btn-primary:hover { background: var(--green-dark); transform: translateY(-2px); }
+.btn-secondary {
+  background: transparent;
+  color: var(--white);
+  padding: 14px 32px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.25);
+  font-weight: 500;
+  font-size: 0.95rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+.btn-secondary:hover { border-color: rgba(255,255,255,0.5); transform: translateY(-2px); }
+.hero-stats {
+  display: flex;
+  gap: 40px;
+  margin-top: 52px;
+  padding-top: 36px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+.hero-stat-num {
+  font-family: 'Space Mono', monospace;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--green);
+}
+.hero-stat-label {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.45);
+  margin-top: 2px;
+}
+
+/* ─── LINE PHONE MOCKUP ─── */
+.phone-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+}
+.phone {
+  width: 280px;
+  background: #1a1a1a;
+  border-radius: 40px;
+  border: 2px solid #333;
+  overflow: hidden;
+  box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px #444;
+  position: relative;
+}
+.phone-notch {
+  background: #1a1a1a;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 10;
+}
+.phone-notch::after {
+  content: '';
+  width: 80px; height: 16px;
+  background: #111;
+  border-radius: 0 0 12px 12px;
+}
+/* LINE Chat UI */
+.line-header {
+  background: var(--white);
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid #eee;
+}
+.line-header-avatar {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #06C755, #04A344);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+}
+.line-header-name { font-size: 0.82rem; font-weight: 700; color: #111; }
+.line-header-status { font-size: 0.68rem; color: var(--green); }
+.line-header-back {
+  margin-right: auto;
+  font-size: 0.75rem;
+  color: var(--green);
+}
+.chat-body {
+  background: #f0f0f0;
+  min-height: 420px;
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+}
+.msg-row { display: flex; gap: 8px; align-items: flex-end; }
+.msg-row.right { flex-direction: row-reverse; }
+.msg-avatar {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: #06C755;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+  color: white;
+  font-weight: 700;
+}
+.bubble {
+  max-width: 200px;
+  padding: 8px 11px;
+  border-radius: 14px;
+  font-size: 0.73rem;
+  line-height: 1.5;
+  position: relative;
+}
+.bubble.them {
+  background: var(--white);
+  color: #111;
+  border-bottom-left-radius: 4px;
+}
+.bubble.me {
+  background: #06C755;
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+.bubble.bot {
+  background: #fff9e6;
+  color: #111;
+  border: 1px solid #ffd96a;
+  border-bottom-left-radius: 4px;
+}
+.bubble .jp { font-size: 0.68rem; color: #666; margin-top: 3px; font-family: 'Space Mono', monospace; }
+.bubble .en { font-size: 0.7rem; color: #06C755; font-weight: 600; margin-top: 1px; }
+.bot-label {
+  font-size: 0.6rem;
+  color: #999;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin-bottom: 1px;
+}
+/* Quiz card inside chat */
+.quiz-card {
+  background: white;
+  border-radius: 12px;
+  border: 1.5px solid #06C755;
+  overflow: hidden;
+  max-width: 220px;
+  font-size: 0.7rem;
+}
+.quiz-header {
+  background: #06C755;
+  color: white;
+  padding: 5px 10px;
+  font-weight: 700;
+  font-size: 0.65rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.quiz-body { padding: 8px 10px; }
+.quiz-q { font-size: 0.68rem; color: #333; margin-bottom: 7px; font-weight: 600; }
+.quiz-opts { display: flex; flex-direction: column; gap: 4px; }
+.quiz-opt {
+  background: #f5f5f5;
+  border-radius: 6px;
+  padding: 5px 8px;
+  font-size: 0.65rem;
+  color: #444;
+  cursor: pointer;
+}
+.quiz-opt.correct { background: #e8fbf0; color: #06C755; font-weight: 700; border: 1px solid #06C755; }
+.time-label {
+  text-align: center;
+  font-size: 0.6rem;
+  color: #aaa;
+  margin: 4px 0;
+}
+.line-input-bar {
+  background: white;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-top: 1px solid #eee;
+}
+.line-input {
+  flex: 1;
+  background: #f5f5f5;
+  border-radius: 20px;
+  padding: 7px 12px;
+  font-size: 0.7rem;
+  color: #999;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+.line-send {
+  width: 28px; height: 28px;
+  background: var(--green);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px;
+  color: white;
+}
+
+/* ─── SECTION COMMON ─── */
+section { padding: 100px 80px; }
+.section-tag {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--green);
+  margin-bottom: 16px;
+}
+.section-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(2rem, 3.5vw, 3rem);
+  color: var(--black);
+  line-height: 1.15;
+  margin-bottom: 16px;
+}
+.section-sub {
+  font-size: 1rem;
+  color: var(--gray);
+  line-height: 1.8;
+  max-width: 540px;
+}
+
+/* ─── PROBLEM SECTION ─── */
+.problem {
+  background: var(--light);
+}
+.problem-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 24px;
+  margin-top: 60px;
+}
+.problem-card {
+  background: white;
+  border-radius: 20px;
+  padding: 32px;
+  border: 1px solid rgba(0,0,0,0.06);
+  position: relative;
+  overflow: hidden;
+}
+.problem-card::before {
+  content: attr(data-num);
+  position: absolute;
+  top: -10px; right: 16px;
+  font-family: 'DM Serif Display', serif;
+  font-size: 5rem;
+  color: rgba(0,0,0,0.04);
+  line-height: 1;
+}
+.problem-icon { font-size: 2rem; margin-bottom: 16px; }
+.problem-card h3 { font-size: 1rem; font-weight: 700; color: var(--black); margin-bottom: 10px; }
+.problem-card p { font-size: 0.85rem; color: var(--gray); line-height: 1.7; }
+
+/* ─── FEATURES SECTION ─── */
+.features-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+  margin-top: 60px;
+}
+.features-grid.reverse { direction: rtl; }
+.features-grid.reverse > * { direction: ltr; }
+.feature-list { display: flex; flex-direction: column; gap: 24px; }
+.feature-item {
+  display: flex;
+  gap: 16px;
+  padding: 20px;
+  background: white;
+  border-radius: 16px;
+  border: 1px solid rgba(0,0,0,0.06);
+  transition: all 0.2s;
+  cursor: default;
+}
+.feature-item:hover {
+  border-color: var(--green);
+  box-shadow: 0 4px 20px rgba(6,199,85,0.1);
+  transform: translateX(4px);
+}
+.feature-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  background: var(--green-light);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+.feature-item h4 { font-size: 0.9rem; font-weight: 700; color: var(--black); margin-bottom: 4px; }
+.feature-item p { font-size: 0.8rem; color: var(--gray); line-height: 1.6; }
+
+/* ─── PHONE MOCKUP (second, quiz screen) ─── */
+.phone-second {
+  width: 260px;
+  background: #1a1a1a;
+  border-radius: 38px;
+  border: 2px solid #333;
+  overflow: hidden;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.2);
+  margin: 0 auto;
+}
+.quiz-screen {
+  background: #f8f8f8;
+  min-height: 440px;
+}
+.quiz-screen-header {
+  background: #06C755;
+  padding: 14px 16px;
+  color: white;
+}
+.quiz-screen-header h3 { font-size: 0.85rem; font-weight: 700; }
+.quiz-screen-header p { font-size: 0.7rem; opacity: 0.85; margin-top: 2px; }
+.quiz-progress-bar {
+  height: 4px;
+  background: rgba(255,255,255,0.3);
+  border-radius: 2px;
+  margin-top: 10px;
+}
+.quiz-progress-fill {
+  height: 100%;
+  background: white;
+  border-radius: 2px;
+  width: 60%;
+}
+.quiz-main { padding: 16px; }
+.quiz-jp-sentence {
+  background: white;
+  border-radius: 12px;
+  padding: 14px;
+  text-align: center;
+  margin-bottom: 14px;
+  border: 1px solid #eee;
+}
+.quiz-jp-sentence .jp-big { font-size: 1.1rem; font-weight: 700; color: #111; }
+.quiz-jp-sentence .reading { font-size: 0.68rem; color: #888; margin-top: 4px; font-family: 'Space Mono', monospace; }
+.quiz-instruction { font-size: 0.72rem; color: #666; margin-bottom: 10px; font-weight: 600; }
+.word-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.chip {
+  background: white;
+  border: 1.5px solid #ddd;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #333;
+  cursor: pointer;
+}
+.chip.selected { background: #06C755; color: white; border-color: #06C755; }
+.chip.wrong { background: #fee2e2; color: #dc2626; border-color: #fca5a5; }
+.answer-bar {
+  background: white;
+  border-radius: 10px;
+  border: 2px dashed #ccc;
+  min-height: 36px;
+  padding: 8px 10px;
+  font-size: 0.72rem;
+  color: #bbb;
+  margin-bottom: 12px;
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+}
+.answer-chip {
+  background: #e8fbf0;
+  border: 1px solid #06C755;
+  color: #06C755;
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+.quiz-btn {
+  width: 100%;
+  background: #06C755;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 11px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  font-family: 'Noto Sans KR', sans-serif;
+  cursor: pointer;
+}
+.quiz-reward {
+  background: #fff9e6;
+  border: 1px solid #fbbf24;
+  border-radius: 10px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 0.72rem;
+}
+.quiz-reward-icon { font-size: 1rem; }
+.quiz-reward-text { color: #92400e; font-weight: 600; }
+
+/* ─── FLOW SECTION ─── */
+.flow { background: var(--black); }
+.flow .section-title { color: white; }
+.flow .section-sub { color: rgba(255,255,255,0.5); }
+.flow .section-tag { color: var(--green); }
+.flow-steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+  margin-top: 60px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 20px;
+  overflow: hidden;
+}
+.flow-step {
+  background: #1a1a1a;
+  padding: 32px 24px;
+  position: relative;
+}
+.flow-step:not(:last-child)::after {
+  content: '→';
+  position: absolute;
+  right: -12px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--green);
+  font-size: 1.2rem;
+  z-index: 2;
+}
+.step-num {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--green);
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+.step-icon { font-size: 2rem; margin-bottom: 12px; }
+.flow-step h4 { font-size: 0.9rem; color: white; font-weight: 700; margin-bottom: 8px; }
+.flow-step p { font-size: 0.78rem; color: rgba(255,255,255,0.4); line-height: 1.6; }
+
+/* ─── PRICING SECTION ─── */
+.pricing { background: var(--light); }
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-top: 60px;
+}
+.plan-card {
+  background: white;
+  border-radius: 24px;
+  padding: 36px 32px;
+  border: 2px solid transparent;
+  transition: all 0.2s;
+  position: relative;
+}
+.plan-card:hover { transform: translateY(-4px); }
+.plan-card.featured {
+  background: var(--black);
+  color: white;
+  border-color: var(--green);
+}
+.plan-badge {
+  position: absolute;
+  top: -14px; left: 50%;
+  transform: translateX(-50%);
+  background: var(--green);
+  color: white;
+  padding: 5px 16px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.plan-name {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--green);
+  margin-bottom: 16px;
+}
+.plan-price {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2.8rem;
+  color: var(--black);
+  line-height: 1;
+}
+.plan-card.featured .plan-price { color: white; }
+.plan-price sup { font-size: 1.2rem; font-family: 'Noto Sans KR', sans-serif; }
+.plan-price sub {
+  font-size: 0.9rem;
+  font-family: 'Noto Sans KR', sans-serif;
+  color: var(--gray);
+}
+.plan-card.featured .plan-price sub { color: rgba(255,255,255,0.5); }
+.plan-period { font-size: 0.75rem; color: var(--gray); margin: 4px 0 24px; }
+.plan-card.featured .plan-period { color: rgba(255,255,255,0.4); }
+.plan-divider { height: 1px; background: rgba(0,0,0,0.07); margin-bottom: 24px; }
+.plan-card.featured .plan-divider { background: rgba(255,255,255,0.1); }
+.plan-features { display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
+.plan-feature {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.82rem;
+  color: var(--charcoal);
+}
+.plan-card.featured .plan-feature { color: rgba(255,255,255,0.8); }
+.feat-check { color: var(--green); font-weight: 700; }
+.feat-x { color: #ccc; }
+.plan-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  font-family: 'Noto Sans KR', sans-serif;
+  cursor: pointer;
+  text-align: center;
+  border: 2px solid var(--green);
+  background: transparent;
+  color: var(--green);
+  transition: all 0.2s;
+}
+.plan-btn:hover { background: var(--green); color: white; }
+.plan-card.featured .plan-btn {
+  background: var(--green);
+  color: white;
+}
+.plan-card.featured .plan-btn:hover { background: var(--green-dark); }
+
+/* ─── ROADMAP SECTION ─── */
+.roadmap { background: white; }
+.roadmap-timeline {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 24px;
+  margin-top: 60px;
+  position: relative;
+}
+.roadmap-timeline::before {
+  content: '';
+  position: absolute;
+  top: 30px; left: calc(16.6% + 12px); right: calc(16.6% + 12px);
+  height: 2px;
+  background: linear-gradient(90deg, var(--green), var(--accent));
+}
+.phase-card {
+  background: var(--light);
+  border-radius: 20px;
+  padding: 28px;
+  position: relative;
+}
+.phase-card.active {
+  background: var(--green-light);
+  border: 2px solid var(--green);
+}
+.phase-dot {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--gray);
+  border: 3px solid white;
+  margin-bottom: 20px;
+  box-shadow: 0 0 0 2px var(--gray);
+}
+.phase-card.active .phase-dot { background: var(--green); box-shadow: 0 0 0 2px var(--green); }
+.phase-period {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--green);
+  margin-bottom: 8px;
+}
+.phase-card h3 { font-size: 1rem; font-weight: 700; color: var(--black); margin-bottom: 12px; }
+.phase-items { display: flex; flex-direction: column; gap: 6px; }
+.phase-item {
+  font-size: 0.78rem;
+  color: var(--gray);
+  display: flex; gap: 6px; align-items: flex-start;
+}
+.phase-item::before { content: '·'; color: var(--green); font-weight: 700; margin-top: 0px; }
+
+/* ─── CTA SECTION ─── */
+.cta {
+  background: var(--green);
+  text-align: center;
+  padding: 100px 40px;
+}
+.cta h2 {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  color: white;
+  margin-bottom: 16px;
+}
+.cta p { font-size: 1.05rem; color: rgba(255,255,255,0.8); margin-bottom: 40px; }
+.cta-btn {
+  background: white;
+  color: var(--green);
+  padding: 16px 40px;
+  border-radius: 14px;
+  font-weight: 900;
+  font-size: 1rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.2s;
+}
+.cta-btn:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(0,0,0,0.15); }
+
+/* ─── FOOTER ─── */
+footer {
+  background: var(--black);
+  padding: 48px 80px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.footer-logo {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.4rem;
+  color: var(--green);
+}
+.footer-logo span { color: rgba(255,255,255,0.5); }
+.footer-copy { font-size: 0.8rem; color: rgba(255,255,255,0.3); }
+
+/* ─── ANIMATIONS ─── */
+.fade-up {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.fade-up.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 900px) {
+  .hero { grid-template-columns: 1fr; padding: 100px 24px 60px; }
+  .phone-wrap { display: none; }
+  section { padding: 60px 24px; }
+  .problem-grid { grid-template-columns: 1fr; }
+  .features-grid { grid-template-columns: 1fr; }
+  .flow-steps { grid-template-columns: 1fr 1fr; }
+  .pricing-grid { grid-template-columns: 1fr; }
+  .roadmap-timeline { grid-template-columns: 1fr; }
+  .roadmap-timeline::before { display: none; }
+  footer { flex-direction: column; gap: 16px; text-align: center; }
+  nav { padding: 0 16px; }
+  .nav-links { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Lingua<span>Line</span></div>
+  <div class="nav-links">
+    <a href="#features">기능</a>
+    <a href="#flow">이용방법</a>
+    <a href="#pricing">요금제</a>
+    <a href="#roadmap">로드맵</a>
+    <a href="#cta" class="nav-cta">무료 시작 →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-tag">LINE 번역봇 × 언어학습 플랫폼</div>
+    <h1>대화하면서<br><em>자연스럽게</em><br>배우는 일본어</h1>
+    <p>LINE 채팅 중 실시간 고품질 번역 + 발음 표기 + AI 퀴즈로<br>
+    대화하면서 포인트를 모으고, 언어 실력을 키우세요.</p>
+    <div class="hero-btns">
+      <a href="#cta" class="btn-primary">🟢 LINE에서 무료 시작</a>
+      <a href="#features" class="btn-secondary">기능 보기 →</a>
+    </div>
+    <div class="hero-stats">
+      <div>
+        <div class="hero-stat-num">GPT-4o</div>
+        <div class="hero-stat-label">번역 엔진</div>
+      </div>
+      <div>
+        <div class="hero-stat-num">3종</div>
+        <div class="hero-stat-label">학습 퀴즈 유형</div>
+      </div>
+      <div>
+        <div class="hero-stat-num">₩4,900</div>
+        <div class="hero-stat-label">월 스탠다드 요금</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LINE CHAT MOCKUP -->
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <!-- LINE header -->
+      <div class="line-header">
+        <span class="line-header-back">＜</span>
+        <div class="line-header-avatar">🤖</div>
+        <div>
+          <div class="line-header-name">LinguaLine Bot</div>
+          <div class="line-header-status">● 온라인</div>
+        </div>
+      </div>
+      <!-- Chat -->
+      <div class="chat-body">
+        <div class="time-label">오늘 오후 2:30</div>
+
+        <!-- Japanese user message -->
+        <div class="msg-row">
+          <div class="msg-avatar">陽</div>
+          <div class="bubble them">今日は忙しい？<br><span style="font-size:0.6rem;color:#999">Haruki</span></div>
+        </div>
+
+        <!-- Bot translation -->
+        <div class="msg-row">
+          <div class="msg-avatar" style="background:#fbbf24">🤖</div>
+          <div>
+            <div class="bot-label">LINGUABOT</div>
+            <div class="bubble bot">
+              <div class="en">오늘 바빠?</div>
+              <div class="jp">きょう は いそがしい？<br>쿄오 와 이소가시이?</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Korean user reply -->
+        <div class="msg-row right">
+          <div class="bubble me">응, 회의가 많아서 😅</div>
+        </div>
+
+        <!-- Bot translates Korean to Japanese -->
+        <div class="msg-row">
+          <div class="msg-avatar" style="background:#fbbf24">🤖</div>
+          <div>
+            <div class="bot-label">LINGUABOT</div>
+            <div class="bubble bot">
+              <div class="jp" style="color:#333;font-size:0.72rem">うん、会議が多くて 😅</div>
+              <div style="font-size:0.6rem;color:#999;margin-top:3px">→ 일본어로 자동 전송</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quiz card -->
+        <div class="msg-row">
+          <div class="msg-avatar" style="background:#fbbf24">🤖</div>
+          <div>
+            <div class="bot-label">🎯 퀴즈 도착!</div>
+            <div class="quiz-card">
+              <div class="quiz-header">⭐ 단어 퀴즈 · +3포인트</div>
+              <div class="quiz-body">
+                <div class="quiz-q">「忙しい」의 뜻은?</div>
+                <div class="quiz-opts">
+                  <div class="quiz-opt correct">✓ 바쁘다</div>
+                  <div class="quiz-opt">피곤하다</div>
+                  <div class="quiz-opt">졸리다</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reward -->
+        <div class="msg-row">
+          <div class="msg-avatar" style="background:#fbbf24">🤖</div>
+          <div class="bubble bot" style="font-size:0.7rem;">
+            🎉 정답! <strong>+3 번역 포인트</strong><br>
+            <span style="color:#888;font-size:0.62rem">누적 포인트: 47점 · 랭킹 12위</span>
+          </div>
+        </div>
+      </div>
+      <!-- Input bar -->
+      <div class="line-input-bar">
+        <div class="line-input">메시지 입력...</div>
+        <div class="line-send">↑</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM SECTION -->
+<section class="problem" id="problem">
+  <div class="fade-up">
+    <div class="section-tag">왜 LinguaLine인가</div>
+    <h2 class="section-title">기존 번역봇이<br>해결 못한 문제들</h2>
+    <p class="section-sub">LINE 기본 번역은 구어체에 약하고, 그렇다고 ChatGPT를 매번 열기엔 번거롭습니다.</p>
+  </div>
+  <div class="problem-grid">
+    <div class="problem-card fade-up" data-num="1">
+      <div class="problem-icon">😤</div>
+      <h3>LINE 기본 번역 품질 부족</h3>
+      <p>「やばい」「それな」 같은 인터넷 표현은 LINE 번역이 어색하게 나옵니다. 결국 ChatGPT를 따로 열게 됩니다.</p>
+    </div>
+    <div class="problem-card fade-up" data-num="2">
+      <div class="problem-icon">📋</div>
+      <h3>발음을 알 수가 없다</h3>
+      <p>한자가 섞인 일본어를 번역만 해서는 읽지 못합니다. 파파고처럼 발음까지 표기해주는 LINE 봇은 없었습니다.</p>
+    </div>
+    <div class="problem-card fade-up" data-num="3">
+      <div class="problem-icon">💸</div>
+      <h3>기존 유료봇은 너무 비싸다</h3>
+      <p>시중 LINE 번역봇은 월 13,000원 수준. 그마저도 번역만 됩니다. 학습 기능과 경쟁 요소는 없습니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES SECTION -->
+<section id="features">
+  <div class="fade-up" style="text-align:center; margin-bottom: 0;">
+    <div class="section-tag">핵심 기능</div>
+    <h2 class="section-title">번역봇이 아니라<br>언어 학습 플랫폼</h2>
+    <p class="section-sub" style="margin: 0 auto;">번역 + 발음 + 퀴즈 + 포인트 보상으로 대화하면서 자연스럽게 공부합니다.</p>
+  </div>
+
+  <!-- Feature 1 -->
+  <div class="features-grid" style="margin-top: 60px;">
+    <div class="feature-list fade-up">
+      <div class="feature-item">
+        <div class="feature-icon">🔤</div>
+        <div>
+          <h4>GPT-4o 고품질 번역</h4>
+          <p>구어체, 인터넷 표현, 존댓말 구분까지. LINE 기본 번역과 차원이 다른 자연스러운 번역을 제공합니다.</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">🔊</div>
+        <div>
+          <h4>히라가나 + 한글 발음 표기</h4>
+          <p>今日は忙しい → 「きょうはいそがしい / 쿄오와 이소가시이」처럼 한자 발음을 동시에 보여줍니다.</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">💬</div>
+        <div>
+          <h4>표현 설명 기능</h4>
+          <p>/explain それな 처럼 입력하면 "맞아 그거 — 상대 의견에 동의할 때 쓰는 인터넷 표현"처럼 맥락을 알려줍니다.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phone mockup - Quiz screen -->
+    <div class="fade-up">
+      <div class="phone-second">
+        <div style="background:#1a1a1a; height:24px; display:flex; align-items:center; justify-content:center;">
+          <div style="width:70px;height:14px;background:#111;border-radius:0 0 10px 10px;"></div>
+        </div>
+        <div class="quiz-screen">
+          <div class="quiz-screen-header">
+            <h3>🎯 단어 배열 퀴즈</h3>
+            <p>오늘 배운 문장으로 퀴즈가 자동 생성됩니다</p>
+            <div class="quiz-progress-bar"><div class="quiz-progress-fill"></div></div>
+          </div>
+          <div class="quiz-main">
+            <div class="quiz-jp-sentence">
+              <div class="jp-big">今日は忙しい？</div>
+              <div class="reading">きょう は いそがしい？</div>
+            </div>
+            <div class="quiz-instruction">한국어 순서로 단어를 배열하세요</div>
+            <div class="answer-bar">
+              <span class="answer-chip">오늘</span>
+              <span class="answer-chip">바빠?</span>
+            </div>
+            <div class="word-chips">
+              <div class="chip selected">오늘</div>
+              <div class="chip">너</div>
+              <div class="chip selected">바빠?</div>
+              <div class="chip">내일</div>
+              <div class="chip">회사</div>
+            </div>
+            <button class="quiz-btn">정답 확인</button>
+            <div class="quiz-reward">
+              <div class="quiz-reward-icon">⭐</div>
+              <div class="quiz-reward-text">정답 시 +5 번역 포인트 지급!</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Feature 2 row -->
+  <div class="features-grid reverse" style="margin-top: 60px;">
+    <div class="feature-list fade-up">
+      <div class="feature-item">
+        <div class="feature-icon">🎮</div>
+        <div>
+          <h4>대화 기반 퀴즈 자동 생성</h4>
+          <p>방금 나눈 대화에서 단어·문장 퀴즈를 자동으로 만들어 제출합니다. Duolingo처럼, 공부한다는 느낌 없이 배웁니다.</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">🏆</div>
+        <div>
+          <h4>포인트 & 랭킹 경쟁</h4>
+          <p>퀴즈 정답 시 번역 포인트 적립. 친구·그룹 내 랭킹 경쟁으로 동기부여가 자연스럽게 생깁니다.</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">📚</div>
+        <div>
+          <h4>자동 학습 카드 저장</h4>
+          <p>대화에서 나온 새 표현을 자동으로 카드로 저장. 나중에 복습 퀴즈를 다시 풀 수 있습니다.</p>
+        </div>
+      </div>
+    </div>
+    <div class="fade-up" style="display: flex; justify-content: center; align-items: center;">
+      <!-- Ranking screen mockup -->
+      <div class="phone-second">
+        <div style="background:#1a1a1a; height:24px; display:flex; align-items:center; justify-content:center;">
+          <div style="width:70px;height:14px;background:#111;border-radius:0 0 10px 10px;"></div>
+        </div>
+        <div style="background:#f8f8f8; min-height:440px;">
+          <div style="background:#06C755; padding: 14px 16px; color:white;">
+            <h3 style="font-size:0.85rem; font-weight:700;">🏆 이번 주 랭킹</h3>
+            <p style="font-size:0.7rem; opacity:0.85; margin-top:2px;">내 그룹 · 포인트 순위</p>
+          </div>
+          <div style="padding: 12px 14px; display:flex; flex-direction:column; gap:8px;">
+            <!-- Rank items -->
+            <div style="background:white; border-radius:10px; padding:10px 12px; display:flex; align-items:center; gap:10px; border-left: 3px solid #fbbf24;">
+              <span style="font-size:1.1rem;">🥇</span>
+              <div style="flex:1;">
+                <div style="font-size:0.78rem; font-weight:700; color:#111;">Haruki</div>
+                <div style="font-size:0.65rem; color:#888;">일본어 → 한국어 학습중</div>
+              </div>
+              <div style="font-family:'Space Mono',monospace; font-size:0.78rem; font-weight:700; color:#06C755;">128pt</div>
+            </div>
+            <div style="background:white; border-radius:10px; padding:10px 12px; display:flex; align-items:center; gap:10px; border-left: 3px solid #9ca3af;">
+              <span style="font-size:1.1rem;">🥈</span>
+              <div style="flex:1;">
+                <div style="font-size:0.78rem; font-weight:700; color:#111;">민지</div>
+                <div style="font-size:0.65rem; color:#888;">한국어 → 일본어 학습중</div>
+              </div>
+              <div style="font-family:'Space Mono',monospace; font-size:0.78rem; font-weight:700; color:#06C755;">97pt</div>
+            </div>
+            <div style="background:#e8fbf0; border-radius:10px; padding:10px 12px; display:flex; align-items:center; gap:10px; border: 2px solid #06C755;">
+              <span style="font-size:1.1rem;">😊</span>
+              <div style="flex:1;">
+                <div style="font-size:0.78rem; font-weight:700; color:#06C755;">나 (3위)</div>
+                <div style="font-size:0.65rem; color:#888;">이번 주 +12pt 상승!</div>
+              </div>
+              <div style="font-family:'Space Mono',monospace; font-size:0.78rem; font-weight:700; color:#06C755;">85pt</div>
+            </div>
+            <div style="background:white; border-radius:10px; padding:10px 12px; display:flex; align-items:center; gap:10px;">
+              <span style="font-size:1.1rem;">4️⃣</span>
+              <div style="flex:1;">
+                <div style="font-size:0.78rem; font-weight:700; color:#111;">Yuki</div>
+                <div style="font-size:0.65rem; color:#888;">한국어 → 일본어 학습중</div>
+              </div>
+              <div style="font-family:'Space Mono',monospace; font-size:0.78rem; font-weight:700; color:#aaa;">64pt</div>
+            </div>
+            <div style="background:white; border-radius:10px; padding:10px 12px; display:flex; align-items:center; gap:10px;">
+              <span style="font-size:1.1rem;">5️⃣</span>
+              <div style="flex:1;">
+                <div style="font-size:0.78rem; font-weight:700; color:#111;">지훈</div>
+                <div style="font-size:0.65rem; color:#888;">일본어 → 한국어 학습중</div>
+              </div>
+              <div style="font-family:'Space Mono',monospace; font-size:0.78rem; font-weight:700; color:#aaa;">51pt</div>
+            </div>
+            <div style="background:#fff9e6; border-radius:10px; padding:10px 12px; border: 1px solid #fbbf24;">
+              <div style="font-size:0.68rem; color:#92400e; font-weight:600; margin-bottom:4px;">💡 포인트 사용하기</div>
+              <div style="font-size:0.65rem; color:#999;">보유 포인트: <strong style="color:#111;">85pt</strong> · 번역 1회 = 1pt</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FLOW SECTION -->
+<section class="flow" id="flow">
+  <div class="fade-up" style="text-align: center;">
+    <div class="section-tag">이용 방법</div>
+    <h2 class="section-title" style="color:white;">LINE에서 4단계로<br>바로 시작</h2>
+    <p class="section-sub" style="margin: 0 auto;">앱 설치 없이 LINE 채팅방에 봇 초대 한 번으로 시작할 수 있습니다.</p>
+  </div>
+  <div class="flow-steps">
+    <div class="flow-step fade-up">
+      <div class="step-num">STEP 01</div>
+      <div class="step-icon">🔗</div>
+      <h4>LINE 봇 친구 추가</h4>
+      <p>QR 코드 또는 링크로 LinguaLine 봇을 LINE 친구로 추가합니다.</p>
+    </div>
+    <div class="flow-step fade-up">
+      <div class="step-num">STEP 02</div>
+      <div class="step-icon">👥</div>
+      <h4>그룹에 봇 초대</h4>
+      <p>일본인 친구와의 채팅방에 봇을 초대합니다. 이후 모든 메시지가 자동 번역됩니다.</p>
+    </div>
+    <div class="flow-step fade-up">
+      <div class="step-num">STEP 03</div>
+      <div class="step-icon">💬</div>
+      <h4>대화 + 자동 퀴즈</h4>
+      <p>번역과 발음이 자동 표시되고, 대화 내용에서 퀴즈가 생성됩니다.</p>
+    </div>
+    <div class="flow-step fade-up">
+      <div class="step-num">STEP 04</div>
+      <div class="step-icon">🏆</div>
+      <h4>포인트 적립 & 활용</h4>
+      <p>퀴즈 정답 시 번역 포인트 적립. 포인트로 무료 번역을 늘리거나 유료 업그레이드 시 할인.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING SECTION -->
+<section class="pricing" id="pricing">
+  <div class="fade-up" style="text-align: center;">
+    <div class="section-tag">요금제</div>
+    <h2 class="section-title">기존 번역봇의<br>절반 가격</h2>
+    <p class="section-sub" style="margin: 0 auto;">기존 LINE 번역봇 대비 저렴하게, 기능은 훨씬 풍부하게.</p>
+  </div>
+  <div class="pricing-grid">
+    <!-- Free -->
+    <div class="plan-card fade-up">
+      <div class="plan-name">Free · 체험</div>
+      <div class="plan-price">0<sub>원</sub></div>
+      <div class="plan-period">1개월 무료 체험 또는 포인트로 계속 사용</div>
+      <div class="plan-divider"></div>
+      <div class="plan-features">
+        <div class="plan-feature"><span class="feat-check">✓</span> 하루 번역 20회</div>
+        <div class="plan-feature"><span class="feat-check">✓</span> 발음 표기 (히라가나 + 한글)</div>
+        <div class="plan-feature"><span class="feat-check">✓</span> 퀴즈 + 포인트 적립</div>
+        <div class="plan-feature"><span class="feat-x">✗</span> 무제한 번역</div>
+        <div class="plan-feature"><span class="feat-x">✗</span> 표현 설명 기능</div>
+        <div class="plan-feature"><span class="feat-x">✗</span> 학습 카드 저장</div>
+      </div>
+      <button class="plan-btn">무료로 시작</button>
+    </div>
+
+    <!-- Standard -->
+    <div class="plan-card featured fade-up">
+      <div class="plan-badge">🔥 가장 인기</div>
+      <div class="plan-name">Standard</div>
+      <div class="plan-price"><sup>₩</sup>9,800<sub>/2개월</sub></div>
+      <div class="plan-period">월 4,900원 · 2개월 단위 결제</div>
+      <div class="plan-divider"></div>
+      <div class="plan-features">
+        <div class="plan-feature"><span class="feat-check">✓</span> 무제한 번역</div>
+        <div class="plan-feature"><span class="feat-check">✓</span> 발음 표기 (히라가나 + 한글)</div>
+        <div class="plan-feature"><span class="feat-check">✓</span> 퀴즈 + 포인트 적립</div>
+        <div class="plan-feature"><span class="feat-check">✓</span> 그룹 채팅 자동 번역</div>
+        <div class="plan-feature"><span class="feat-x">✗</span> 표현 설명 기능</div>
+        <div class="plan-feature"><span class="feat-x">✗</span> 학습 카드 저장</div>
+      </div>
+      <button class="plan-btn">스탠다드 시작</button>
+    </div>
+
+    <!-- Premium -->
+    <div class="plan-card fade-up">
+      <div class="plan-name">Premium</div>
+      <div class="plan-price"><sup>₩</sup>19,800<sub>/2개월</sub></div>
+      <div class="plan-period">월 9,900원 · 2개월 단위 결제</div>
+      <div class="plan-divider"></div>
+      <div class="plan-features">
+        <div class="plan-feature"><span class="feat-check">✓</span> 무제한 번역</div>
+        <div class="plan-feature"><span class="feat-check">✓</span> 발음 표기 (히라가나 + 한글)</div>
+        <div class="plan-feature"><span class="feat-check">✓</span> 퀴즈 + 포인트 적립</div>
+        <div class="plan-feature"><span class="feat-check">✓</span> 그룹 채팅 자동 번역</div>
+        <div class="plan-feature"><span class="feat-check">✓</span> 표현 설명 기능</div>
+        <div class="plan-feature"><span class="feat-check">✓</span> 학습 카드 자동 저장</div>
+      </div>
+      <button class="plan-btn">프리미엄 시작</button>
+    </div>
+  </div>
+</section>
+
+<!-- ROADMAP SECTION -->
+<section class="roadmap" id="roadmap">
+  <div class="fade-up" style="text-align: center;">
+    <div class="section-tag">로드맵</div>
+    <h2 class="section-title">LINE 봇에서<br>독립 플랫폼으로</h2>
+    <p class="section-sub" style="margin: 0 auto;">단계적으로 검증하며 성장하는 2단계 전략.</p>
+  </div>
+  <div class="roadmap-timeline">
+    <div class="phase-card active fade-up">
+      <div class="phase-dot"></div>
+      <div class="phase-period">1단계 · 1~3개월</div>
+      <h3>🤖 LINE 봇 출시</h3>
+      <div class="phase-items">
+        <div class="phase-item">GPT-4o 기반 고품질 번역</div>
+        <div class="phase-item">히라가나 + 한글 발음 표기</div>
+        <div class="phase-item">대화 기반 퀴즈 자동 생성</div>
+        <div class="phase-item">포인트 시스템 구축</div>
+        <div class="phase-item">무료 → 유료 전환 검증</div>
+      </div>
+    </div>
+    <div class="phase-card fade-up">
+      <div class="phase-dot"></div>
+      <div class="phase-period">2단계 · 4~9개월</div>
+      <h3>📊 데이터 분석 & 카카오 확장</h3>
+      <div class="phase-items">
+        <div class="phase-item">번역/발음/퀴즈 사용률 분석</div>
+        <div class="phase-item">카카오톡 봇 동시 출시</div>
+        <div class="phase-item">그룹 랭킹 · 경쟁 기능 강화</div>
+        <div class="phase-item">학습 카드 & 복습 시스템</div>
+        <div class="phase-item">사용자 피드백 기반 개선</div>
+      </div>
+    </div>
+    <div class="phase-card fade-up">
+      <div class="phase-dot"></div>
+      <div class="phase-period">3단계 · 10개월~</div>
+      <h3>🚀 독립 앱 출시</h3>
+      <div class="phase-items">
+        <div class="phase-item">한국인 ↔ 일본인 매칭 기능</div>
+        <div class="phase-item">HelloTalk식 언어교환 커뮤니티</div>
+        <div class="phase-item">드라마 대사 기반 학습 콘텐츠</div>
+        <div class="phase-item">AI 문장 교정 기능</div>
+        <div class="phase-item">독립 앱 브랜드 확립</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta" id="cta">
+  <h2>지금 LINE에서<br>무료로 시작하세요</h2>
+  <p>앱 설치 없이, LINE 봇 추가 한 번으로 바로 시작할 수 있습니다.</p>
+  <a href="#" class="cta-btn">🟢 LINE에서 무료 시작 →</a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Lingua<span>Line</span></div>
+  <div class="footer-copy">© 2025 LinguaLine · 한국-일본 언어학습 플랫폼</div>
+</footer>
+
+<script>
+// Fade-up intersection observer
+const fadeEls = document.querySelectorAll('.fade-up');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) {
+      setTimeout(() => entry.target.classList.add('visible'), 80);
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.12 });
+fadeEls.forEach(el => observer.observe(el));
+
+// Stagger sibling fade-ups in grids
+document.querySelectorAll('.problem-grid, .pricing-grid, .flow-steps, .roadmap-timeline').forEach(grid => {
+  [...grid.querySelectorAll('.fade-up')].forEach((el, i) => {
+    el.style.transitionDelay = `${i * 0.1}s`;
+  });
+});
+</script>
+</body>
+</html>

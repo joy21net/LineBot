@@ -1,0 +1,2602 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 한일 언어 교환 플랫폼 기획안</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700;900&family=Bebas+Neue&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #FF3D57;
+    --secondary: #00C9A7;
+    --accent: #FFD23F;
+    --dark: #0A0A14;
+    --dark2: #111124;
+    --mid: #1A1A35;
+    --light: #E8E8F0;
+    --muted: #6B6B8A;
+    --jp: #E8233A;
+    --kr: #003DA5;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--dark);
+    color: var(--light);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    user-select: none;
+  }
+
+  /* ===== SLIDE SYSTEM ===== */
+  .slide-container {
+    width: 100%;
+    height: 100vh;
+    position: relative;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 80px;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .slide.active {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: all;
+  }
+
+  .slide.exit {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+
+  /* ===== NAVIGATION ===== */
+  .nav {
+    position: fixed;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    z-index: 100;
+    background: rgba(10,10,20,0.8);
+    padding: 12px 24px;
+    border-radius: 50px;
+    border: 1px solid rgba(255,255,255,0.1);
+    backdrop-filter: blur(12px);
+  }
+
+  .nav-btn {
+    background: none;
+    border: none;
+    color: var(--light);
+    cursor: pointer;
+    padding: 8px 20px;
+    border-radius: 30px;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    transition: all 0.3s;
+    letter-spacing: 1px;
+  }
+
+  .nav-btn:hover { background: rgba(255,255,255,0.1); }
+  .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  .slide-dots {
+    display: flex;
+    gap: 8px;
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--muted);
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .dot.active {
+    background: var(--primary);
+    width: 24px;
+    border-radius: 4px;
+  }
+
+  .slide-counter {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    min-width: 40px;
+    text-align: center;
+  }
+
+  /* ===== SLIDE 1: TITLE ===== */
+  #slide-1 {
+    background: var(--dark);
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+  #slide-1 .bg-grid {
+    position: absolute;
+    inset: 0;
+    background-image: 
+      linear-gradient(rgba(255,61,87,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,61,87,0.06) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  #slide-1 .accent-orb {
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,61,87,0.2) 0%, transparent 70%);
+    right: -100px;
+    top: 50%;
+    transform: translateY(-50%);
+    animation: pulse 4s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: translateY(-50%) scale(1); opacity: 0.8; }
+    50% { transform: translateY(-50%) scale(1.1); opacity: 1; }
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,61,87,0.15);
+    border: 1px solid rgba(255,61,87,0.4);
+    color: var(--primary);
+    padding: 6px 16px;
+    border-radius: 50px;
+    font-size: 12px;
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 2px;
+    margin-bottom: 32px;
+    animation: fadeInUp 0.8s ease 0.2s both;
+  }
+
+  .title-main {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(52px, 7vw, 90px);
+    line-height: 0.95;
+    letter-spacing: 2px;
+    margin-bottom: 24px;
+    animation: fadeInUp 0.8s ease 0.4s both;
+  }
+
+  .title-main .kr { color: var(--kr); }
+  .title-main .jp { color: var(--jp); }
+  .title-main .ai { 
+    color: var(--accent);
+    -webkit-text-stroke: 1px rgba(255,210,63,0.3);
+  }
+
+  .title-sub {
+    font-size: 18px;
+    color: var(--muted);
+    max-width: 520px;
+    line-height: 1.7;
+    font-weight: 300;
+    animation: fadeInUp 0.8s ease 0.6s both;
+  }
+
+  .title-tags {
+    display: flex;
+    gap: 12px;
+    margin-top: 40px;
+    flex-wrap: wrap;
+    animation: fadeInUp 0.8s ease 0.8s both;
+  }
+
+  .tag {
+    padding: 6px 14px;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 4px;
+    font-size: 12px;
+    font-family: 'Space Mono', monospace;
+    color: var(--muted);
+  }
+
+  .flag-combo {
+    position: absolute;
+    right: 80px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+    animation: fadeInRight 1s ease 1s both;
+  }
+
+  .flag-circle {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 52px;
+    border: 3px solid rgba(255,255,255,0.1);
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .flag-circle:nth-child(2) { animation-delay: 1.5s; }
+
+  .connect-line {
+    width: 2px;
+    height: 40px;
+    background: linear-gradient(to bottom, var(--kr), var(--jp));
+    margin: -10px 0;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeInRight {
+    from { opacity: 0; transform: translateY(-50%) translateX(40px); }
+    to { opacity: 1; transform: translateY(-50%) translateX(0); }
+  }
+
+  /* ===== SLIDE 2: 문제 정의 ===== */
+  #slide-2 {
+    background: var(--dark2);
+    align-items: stretch;
+    padding: 60px 80px;
+  }
+
+  .slide-header {
+    text-align: left;
+    margin-bottom: 48px;
+    width: 100%;
+  }
+
+  .slide-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--primary);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .slide-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(36px, 4vw, 56px);
+    letter-spacing: 1px;
+    line-height: 1;
+  }
+
+  .problem-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    width: 100%;
+    flex: 1;
+  }
+
+  .problem-card {
+    background: var(--mid);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    padding: 28px;
+    position: relative;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+
+  .problem-card.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .problem-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--primary), transparent);
+  }
+
+  .problem-icon {
+    font-size: 28px;
+    margin-bottom: 12px;
+  }
+
+  .problem-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--light);
+  }
+
+  .problem-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .problem-app {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 12px;
+    font-size: 11px;
+    font-family: 'Space Mono', monospace;
+    color: var(--primary);
+    opacity: 0.8;
+  }
+
+  /* ===== SLIDE 3: 핵심 개념 ===== */
+  #slide-3 {
+    background: var(--dark);
+    align-items: stretch;
+  }
+
+  .concept-visual {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    width: 100%;
+    flex: 1;
+    position: relative;
+  }
+
+  .concept-box {
+    flex: 1;
+    max-width: 280px;
+    border-radius: 16px;
+    padding: 36px 28px;
+    text-align: center;
+    position: relative;
+    opacity: 0;
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .concept-box.visible { opacity: 1; transform: none !important; }
+
+  .concept-box.left {
+    background: linear-gradient(135deg, rgba(0,61,165,0.3), rgba(0,61,165,0.1));
+    border: 1px solid rgba(0,61,165,0.5);
+    transform: translateX(-40px);
+  }
+
+  .concept-box.right {
+    background: linear-gradient(135deg, rgba(232,35,58,0.3), rgba(232,35,58,0.1));
+    border: 1px solid rgba(232,35,58,0.5);
+    transform: translateX(40px);
+  }
+
+  .concept-box.center-res {
+    background: linear-gradient(135deg, rgba(0,201,167,0.3), rgba(0,201,167,0.1));
+    border: 2px solid rgba(0,201,167,0.6);
+    max-width: 320px;
+    z-index: 2;
+    transform: translateY(20px);
+    box-shadow: 0 0 60px rgba(0,201,167,0.2);
+  }
+
+  .concept-emoji { font-size: 48px; margin-bottom: 16px; display: block; }
+
+  .concept-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  .concept-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+  .plus-sign {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px;
+    color: var(--muted);
+    padding: 0 20px;
+    opacity: 0;
+    transition: opacity 0.6s ease 0.6s;
+  }
+
+  .plus-sign.visible { opacity: 1; }
+
+  .equals-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 20px;
+    opacity: 0;
+    transition: opacity 0.6s ease 0.8s;
+  }
+
+  .equals-wrap.visible { opacity: 1; }
+
+  .equals-sign {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px;
+    color: var(--secondary);
+  }
+
+  /* ===== SLIDE 4: 기능 구조 ===== */
+  #slide-4 {
+    background: var(--dark2);
+    align-items: stretch;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    width: 100%;
+    flex: 1;
+  }
+
+  .feature-card {
+    background: var(--mid);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    padding: 24px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .feature-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 60%, rgba(255,255,255,0.02));
+  }
+
+  .feature-card.visible { opacity: 1; transform: translateY(0); }
+
+  .feature-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px;
+    color: rgba(255,255,255,0.05);
+    position: absolute;
+    top: 12px; right: 16px;
+    line-height: 1;
+  }
+
+  .feature-icon {
+    font-size: 28px;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .feature-name {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--light);
+  }
+
+  .feature-items {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .feature-items li {
+    font-size: 12px;
+    color: var(--muted);
+    padding-left: 12px;
+    position: relative;
+    line-height: 1.5;
+  }
+
+  .feature-items li::before {
+    content: '›';
+    position: absolute;
+    left: 0;
+    color: var(--secondary);
+  }
+
+  /* ===== SLIDE 5: 경쟁 비교 차트 ===== */
+  #slide-5 {
+    background: var(--dark);
+    align-items: stretch;
+  }
+
+  .comparison-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    flex: 1;
+    margin-top: 8px;
+  }
+
+  .comparison-table th {
+    padding: 16px 20px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-align: center;
+    border-bottom: 2px solid rgba(255,255,255,0.08);
+  }
+
+  .comparison-table th.highlight {
+    background: rgba(0,201,167,0.1);
+    color: var(--secondary);
+    border-bottom-color: var(--secondary);
+    border-radius: 8px 8px 0 0;
+  }
+
+  .comparison-table th:first-child {
+    text-align: left;
+    color: var(--muted);
+  }
+
+  .comparison-table td {
+    padding: 14px 20px;
+    font-size: 13px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+
+  .comparison-table td.visible { opacity: 1; transform: translateX(0); }
+
+  .comparison-table td:first-child {
+    text-align: left;
+    color: var(--light);
+    font-weight: 500;
+  }
+
+  .comparison-table td.highlight {
+    background: rgba(0,201,167,0.05);
+    color: var(--secondary);
+    font-weight: 700;
+  }
+
+  .check { color: var(--secondary); font-size: 18px; }
+  .cross { color: rgba(255,255,255,0.2); font-size: 18px; }
+  .partial { color: var(--accent); font-size: 18px; }
+
+  /* ===== SLIDE 6: UX 흐름 ===== */
+  #slide-6 {
+    background: var(--dark2);
+    align-items: stretch;
+  }
+
+  .ux-flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    width: 100%;
+    flex: 1;
+    overflow-x: auto;
+    padding: 20px 0;
+  }
+
+  .ux-step {
+    flex: 1;
+    min-width: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+
+  .ux-step.visible { opacity: 1; transform: translateY(0); }
+
+  .ux-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    border: 2px solid rgba(255,255,255,0.1);
+    background: var(--mid);
+    position: relative;
+    transition: all 0.3s;
+  }
+
+  .ux-circle.active-step {
+    border-color: var(--secondary);
+    background: rgba(0,201,167,0.15);
+    box-shadow: 0 0 30px rgba(0,201,167,0.3);
+    animation: stepPulse 2s ease-in-out infinite;
+  }
+
+  @keyframes stepPulse {
+    0%, 100% { box-shadow: 0 0 20px rgba(0,201,167,0.3); }
+    50% { box-shadow: 0 0 40px rgba(0,201,167,0.5); }
+  }
+
+  .ux-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--light);
+    text-align: center;
+    line-height: 1.4;
+  }
+
+  .ux-sublabel {
+    font-size: 11px;
+    color: var(--muted);
+    text-align: center;
+    line-height: 1.4;
+  }
+
+  .ux-arrow {
+    color: var(--muted);
+    font-size: 20px;
+    flex-shrink: 0;
+    padding: 0 4px;
+    padding-bottom: 40px;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+
+  .ux-arrow.visible { opacity: 1; }
+
+  /* ===== SLIDE 7: AI 실시간 피드백 ===== */
+  #slide-7 {
+    background: var(--dark);
+    align-items: stretch;
+  }
+
+  .feedback-demo {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    width: 100%;
+    flex: 1;
+  }
+
+  .chat-window {
+    background: var(--mid);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow: hidden;
+  }
+
+  .chat-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    padding-bottom: 16px;
+    margin-bottom: 4px;
+  }
+
+  .chat-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+
+  .chat-name { font-size: 14px; font-weight: 700; }
+  .chat-status { font-size: 11px; color: var(--secondary); }
+
+  .chat-bubble {
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 13px;
+    line-height: 1.6;
+    max-width: 85%;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+
+  .chat-bubble.visible { opacity: 1; transform: translateY(0); }
+
+  .bubble-jp {
+    background: rgba(232,35,58,0.15);
+    border: 1px solid rgba(232,35,58,0.2);
+    align-self: flex-start;
+    color: var(--light);
+  }
+
+  .bubble-ai {
+    background: rgba(0,201,167,0.12);
+    border: 1px solid rgba(0,201,167,0.25);
+    align-self: flex-end;
+  }
+
+  .bubble-label {
+    font-size: 10px;
+    font-family: 'Space Mono', monospace;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .bubble-original { color: rgba(255,255,255,0.5); font-size: 12px; }
+  .bubble-easy { color: var(--accent); font-weight: 700; font-size: 14px; margin-top: 4px; }
+
+  .quiz-section {
+    background: var(--mid);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .quiz-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--secondary);
+    letter-spacing: 2px;
+  }
+
+  .quiz-q {
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.5;
+    color: var(--light);
+  }
+
+  .quiz-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .quiz-opt {
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.1);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: opacity 0.4s ease, transform 0.4s ease, background 0.2s, border-color 0.2s;
+  }
+
+  .quiz-opt.visible { opacity: 1; transform: translateX(0); }
+  .quiz-opt.correct { background: rgba(0,201,167,0.2); border-color: var(--secondary); }
+  .quiz-opt.wrong { background: rgba(255,61,87,0.1); border-color: rgba(255,61,87,0.3); }
+
+  .opt-label {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-family: 'Space Mono', monospace;
+    flex-shrink: 0;
+  }
+
+  /* ===== SLIDE 8: 발음 피드백 ===== */
+  #slide-8 {
+    background: var(--dark2);
+    align-items: stretch;
+  }
+
+  .pronunciation-demo {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    width: 100%;
+    flex: 1;
+  }
+
+  .vs-card {
+    background: var(--mid);
+    border-radius: 16px;
+    padding: 28px;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .vs-card.bad { border-color: rgba(255,61,87,0.2); }
+  .vs-card.good { border-color: rgba(0,201,167,0.2); }
+
+  .vs-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .vs-label.bad-label { color: var(--primary); }
+  .vs-label.good-label { color: var(--secondary); }
+
+  .word-display {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 56px;
+    letter-spacing: 8px;
+    margin: 20px 0;
+    text-align: center;
+  }
+
+  .syllable-bars {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin: 20px 0;
+  }
+
+  .syllable {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .syl-bar-wrap {
+    height: 80px;
+    width: 40px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 4px;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+  }
+
+  .syl-bar {
+    width: 100%;
+    border-radius: 4px;
+    transition: height 1s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .syl-label {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .syl-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .feedback-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .feedback-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    padding: 10px 14px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 8px;
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+
+  .feedback-item.visible { opacity: 1; transform: translateX(0); }
+
+  /* ===== SLIDE 9: 수익 모델 ===== */
+  #slide-9 {
+    background: var(--dark);
+    align-items: stretch;
+  }
+
+  .revenue-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    width: 100%;
+    flex: 1;
+  }
+
+  .revenue-card {
+    background: var(--mid);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .revenue-card.visible { opacity: 1; transform: translateY(0); }
+
+  .revenue-card.featured {
+    border-color: rgba(255,210,63,0.4);
+    background: linear-gradient(135deg, rgba(255,210,63,0.1), var(--mid));
+  }
+
+  .revenue-card.featured::before {
+    content: '⭐ 핵심';
+    position: absolute;
+    top: 12px; right: 12px;
+    font-size: 10px;
+    font-family: 'Space Mono', monospace;
+    color: var(--accent);
+    background: rgba(255,210,63,0.15);
+    padding: 3px 8px;
+    border-radius: 20px;
+  }
+
+  .revenue-icon { font-size: 32px; }
+  .revenue-name { font-size: 15px; font-weight: 700; }
+  .revenue-desc { font-size: 12px; color: var(--muted); line-height: 1.6; }
+
+  .revenue-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-family: 'Space Mono', monospace;
+    margin-top: auto;
+    width: fit-content;
+  }
+
+  .tag-b2c { background: rgba(0,61,165,0.2); color: #80a0ff; border: 1px solid rgba(0,61,165,0.4); }
+  .tag-b2b { background: rgba(0,201,167,0.15); color: var(--secondary); border: 1px solid rgba(0,201,167,0.3); }
+  .tag-ai { background: rgba(255,210,63,0.15); color: var(--accent); border: 1px solid rgba(255,210,63,0.3); }
+
+  /* ===== SLIDES 10-13: AI 선생님 ===== */
+  #slide-10, #slide-11, #slide-12, #slide-13 {
+    background: var(--dark2);
+    align-items: stretch;
+  }
+
+  /* AI Teacher intro bg */
+  #slide-10 {
+    background: var(--dark);
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+  #slide-10 .ai-orb {
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,201,167,0.18) 0%, transparent 70%);
+    right: -60px;
+    top: 50%;
+    transform: translateY(-50%);
+    animation: pulse2 5s ease-in-out infinite;
+  }
+
+  @keyframes pulse2 {
+    0%, 100% { transform: translateY(-50%) scale(1); opacity: 0.7; }
+    50% { transform: translateY(-50%) scale(1.08); opacity: 1; }
+  }
+
+  .ai-avatar-ring {
+    position: absolute;
+    right: 80px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 260px;
+    height: 260px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeInRight2 1s ease 0.8s both;
+  }
+
+  @keyframes fadeInRight2 {
+    from { opacity: 0; transform: translateY(-50%) translateX(40px); }
+    to { opacity: 1; transform: translateY(-50%) translateX(0); }
+  }
+
+  .ai-avatar-ring .ring-outer {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 2px solid rgba(0,201,167,0.3);
+    animation: spinSlow 8s linear infinite;
+  }
+
+  .ai-avatar-ring .ring-outer::before {
+    content: '';
+    position: absolute;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--secondary);
+    top: -6px; left: 50%;
+    transform: translateX(-50%);
+    box-shadow: 0 0 12px var(--secondary);
+  }
+
+  .ai-avatar-ring .ring-inner {
+    position: absolute;
+    inset: 20px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,210,63,0.2);
+    animation: spinSlow 5s linear infinite reverse;
+  }
+
+  .ai-avatar-ring .ring-inner::before {
+    content: '';
+    position: absolute;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    bottom: -4px; left: 50%;
+    transform: translateX(-50%);
+    box-shadow: 0 0 8px var(--accent);
+  }
+
+  @keyframes spinSlow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .ai-face {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(0,201,167,0.2), rgba(0,61,165,0.2));
+    border: 2px solid rgba(0,201,167,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 72px;
+    box-shadow: 0 0 40px rgba(0,201,167,0.2);
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Slide 11: 기술 구조 */
+  .tech-stack {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    width: 100%;
+    flex: 1;
+  }
+
+  .tech-card {
+    background: var(--mid);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px;
+    padding: 28px;
+    display: flex;
+    gap: 18px;
+    align-items: flex-start;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .tech-card.visible { opacity: 1; transform: translateY(0); }
+
+  .tech-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+  }
+
+  .tech-card.c1::before { background: var(--secondary); }
+  .tech-card.c2::before { background: var(--accent); }
+  .tech-card.c3::before { background: var(--primary); }
+  .tech-card.c4::before { background: #c084fc; }
+
+  .tech-icon-wrap {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    flex-shrink: 0;
+  }
+
+  .tech-icon-wrap.c1 { background: rgba(0,201,167,0.15); }
+  .tech-icon-wrap.c2 { background: rgba(255,210,63,0.15); }
+  .tech-icon-wrap.c3 { background: rgba(255,61,87,0.15); }
+  .tech-icon-wrap.c4 { background: rgba(192,132,252,0.15); }
+
+  .tech-info { flex: 1; }
+  .tech-name { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+  .tech-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+  .tech-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .tech-chip {
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-family: 'Space Mono', monospace;
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--muted);
+  }
+
+  /* Slide 12: 게임형 콘텐츠 */
+  .game-showcase {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    width: 100%;
+    flex: 1;
+  }
+
+  .game-card {
+    background: var(--mid);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .game-card.visible { opacity: 1; transform: translateY(0); }
+
+  .game-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+  }
+
+  .game-card.g1::after { background: linear-gradient(90deg, var(--secondary), transparent); }
+  .game-card.g2::after { background: linear-gradient(90deg, var(--accent), transparent); }
+  .game-card.g3::after { background: linear-gradient(90deg, var(--primary), transparent); }
+
+  .game-emoji { font-size: 36px; }
+  .game-name { font-size: 14px; font-weight: 700; }
+  .game-desc { font-size: 12px; color: var(--muted); line-height: 1.6; flex: 1; }
+
+  .game-preview {
+    background: rgba(0,0,0,0.3);
+    border-radius: 8px;
+    padding: 12px;
+    border: 1px solid rgba(255,255,255,0.04);
+    min-height: 70px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .preview-label {
+    font-size: 9px;
+    font-family: 'Space Mono', monospace;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  .card-flip-demo {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .mini-card {
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    background: rgba(0,201,167,0.15);
+    border: 1px solid rgba(0,201,167,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+
+  .mini-card.face-down {
+    background: rgba(255,255,255,0.05);
+    border-color: rgba(255,255,255,0.1);
+    font-size: 0;
+  }
+
+  .mini-card.face-down::after { content: '?'; font-size: 14px; color: var(--muted); }
+
+  .roleplay-scene {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .scene-bubble {
+    font-size: 10px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    max-width: 90%;
+  }
+
+  .scene-bubble.teacher { background: rgba(0,201,167,0.15); color: var(--secondary); align-self: flex-start; }
+  .scene-bubble.student { background: rgba(255,210,63,0.1); color: var(--accent); align-self: flex-end; }
+
+  .score-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .score-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  .score-bar-wrap {
+    flex: 1;
+    height: 4px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .score-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    width: 0;
+    transition: width 1.2s cubic-bezier(0.4,0,0.2,1) 0.6s;
+  }
+
+  .score-bar-fill.animated { }
+
+  /* Slide 13: 반응 속도 & 시스템 구조 */
+  .latency-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    width: 100%;
+    flex: 1;
+  }
+
+  .latency-panel {
+    background: var(--mid);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .latency-panel.visible { opacity: 1; transform: translateY(0); }
+
+  .latency-panel-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--secondary);
+    letter-spacing: 2px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .latency-hero {
+    text-align: center;
+    padding: 16px 0;
+  }
+
+  .latency-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 72px;
+    line-height: 1;
+    color: var(--secondary);
+    text-shadow: 0 0 40px rgba(0,201,167,0.4);
+  }
+
+  .latency-unit {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  .latency-compare {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .lat-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+  }
+
+  .lat-label { width: 120px; color: var(--muted); flex-shrink: 0; }
+
+  .lat-bar-wrap {
+    flex: 1;
+    height: 8px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .lat-bar {
+    height: 100%;
+    border-radius: 4px;
+    width: 0;
+    transition: width 1.2s cubic-bezier(0.4,0,0.2,1) 0.3s;
+  }
+
+  .lat-val { font-family: 'Space Mono', monospace; font-size: 11px; width: 50px; text-align: right; }
+
+  .pipeline-flow {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+  }
+
+  .pipe-step {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 8px;
+    font-size: 12px;
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+
+  .pipe-step.visible { opacity: 1; transform: translateX(0); }
+
+  .pipe-icon { font-size: 18px; flex-shrink: 0; width: 28px; text-align: center; }
+  .pipe-name { font-weight: 700; flex: 1; }
+  .pipe-tech { font-size: 10px; color: var(--muted); font-family: 'Space Mono', monospace; }
+
+  .pipe-arrow {
+    text-align: center;
+    color: var(--muted);
+    font-size: 14px;
+    padding: 2px 0;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .pipe-arrow.visible { opacity: 1; }
+
+  /* ===== SLIDE 14: 결론 ===== */
+  #slide-14 {
+    background: var(--dark);
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+
+  #slide-14 .bg-radial {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 50%, rgba(0,201,167,0.15) 0%, transparent 60%);
+  }
+
+  .conclusion-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--secondary);
+    letter-spacing: 3px;
+    margin-bottom: 24px;
+    animation: fadeInUp 0.8s ease 0.2s both;
+  }
+
+  .conclusion-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(42px, 5vw, 72px);
+    line-height: 1.1;
+    letter-spacing: 2px;
+    margin-bottom: 32px;
+    animation: fadeInUp 0.8s ease 0.4s both;
+  }
+
+  .conclusion-title span { color: var(--secondary); }
+
+  .strength-bars {
+    display: flex;
+    gap: 24px;
+    margin: 32px 0;
+    animation: fadeInUp 0.8s ease 0.6s both;
+  }
+
+  .strength-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: 140px;
+  }
+
+  .strength-ring {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .strength-ring svg {
+    position: absolute;
+    inset: 0;
+    transform: rotate(-90deg);
+  }
+
+  .strength-ring circle {
+    fill: none;
+    stroke-width: 6;
+    stroke-linecap: round;
+  }
+
+  .ring-bg { stroke: rgba(255,255,255,0.06); }
+
+  .ring-fill {
+    stroke-dasharray: 220;
+    stroke-dashoffset: 220;
+    transition: stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1) 0.8s;
+  }
+
+  .ring-fill.animated { stroke-dashoffset: 0; }
+
+  .ring-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .strength-name { font-size: 12px; color: var(--muted); text-align: center; }
+
+  .motto {
+    font-size: 16px;
+    color: var(--muted);
+    font-style: italic;
+    padding: 20px 40px;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 50px;
+    animation: fadeInUp 0.8s ease 0.8s both;
+    position: relative;
+  }
+
+  .motto::before, .motto::after {
+    font-size: 48px;
+    position: absolute;
+    opacity: 0.2;
+    font-style: normal;
+  }
+
+  .motto::before { content: '"'; top: -10px; left: 20px; }
+  .motto::after { content: '"'; bottom: -24px; right: 20px; }
+
+  /* ===== PROGRESS BAR ===== */
+  .progress-bar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    transition: width 0.5s ease;
+    z-index: 200;
+  }
+
+  .slide-number-badge {
+    position: fixed;
+    top: 24px;
+    right: 32px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    z-index: 100;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .slide { padding: 40px 24px; }
+    .problem-grid, .features-grid, .revenue-grid { grid-template-columns: 1fr; }
+    .feedback-demo, .pronunciation-demo { grid-template-columns: 1fr; }
+    .strength-bars { gap: 12px; }
+    .ux-flow { gap: 4px; }
+    .flag-combo { display: none; }
+  }
+  /* Language Toggle */
+  .lang-toggle-container {
+    position: fixed;
+    top: 30px;
+    left: 30px;
+    z-index: 9999;
+    display: flex;
+    background: rgba(10,10,20,0.8);
+    border-radius: 30px;
+    border: 1px solid rgba(255,255,255,0.1);
+    backdrop-filter: blur(12px);
+    overflow: hidden;
+  }
+  .lang-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    padding: 8px 20px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  .lang-btn.active {
+    background: rgba(255,255,255,0.1);
+    color: var(--light);
+  }
+
+</style>
+</head>
+<body>
+
+<!-- LANGUAGE TOGGLE -->
+<div class="lang-toggle-container">
+  <button id="lang-ko" class="lang-btn active" onclick="setLang('ko')">한국어</button>
+  <button id="lang-ja" class="lang-btn" onclick="setLang('ja')">日本語</button>
+</div>
+
+<div class="progress-bar" id="progressBar"></div>
+<div class="slide-number-badge" id="slideNum">01 / 10</div>
+
+<div class="slide-container" id="slideContainer">
+
+  <!-- SLIDE 1: TITLE -->
+  <div class="slide active" id="slide-1">
+    <div class="bg-grid"></div>
+    <div class="accent-orb"></div>
+    <div class="badge"><span data-ko="📋 기획안 · 2025" data-ja="📋 企画案 · 2025">📋 기획안 · 2025</span></div>
+    <div class="title-main">
+      <span class="kr"><span data-ko="한국" data-ja="韓国">한국</span></span> <span style="color:var(--muted)">×</span> <span class="jp"><span data-ko="일본" data-ja="日本">일본</span></span><br>
+      <span class="ai"><span data-ko="AI 언어" data-ja="AI 言語">AI 언어</span></span><br><span data-ko="교환 플랫폼" data-ja="交換プラットフォーム">교환 플랫폼</span>
+    </div>
+    <div class="title-sub">
+      <span data-ko="드라매치 + 듀오링고의 장점을 결합한" data-ja="Dr.Match + Duolingoの長所を融合した">드라매치 + 듀오링고의 장점을 결합한</span><br>
+      <span data-ko="AI 기반 맞춤형 언어 교환 학습 서비스" data-ja="AIベースのカスタマイズ言語交換学習サービス">AI 기반 맞춤형 언어 교환 학습 서비스</span>
+    </div>
+    <div class="title-tags">
+      <span class="tag"><span data-ko="#언어교환" data-ja="#言語交換">#언어교환</span></span>
+      <span class="tag"><span data-ko="#AI피드백" data-ja="#AIフィードバック">#AI피드백</span></span>
+      <span class="tag"><span data-ko="#문화맥락변환" data-ja="#文化コンテキスト変換">#문화맥락변환</span></span>
+      <span class="tag"><span data-ko="#원어민매칭" data-ja="#ネイティブマッチング">#원어민매칭</span></span>
+      <span class="tag"><span data-ko="#발음분석" data-ja="#発音分析">#발음분석</span></span>
+    </div>
+    <div class="flag-combo">
+      <div class="flag-circle" style="background: rgba(0,61,165,0.2); border-color: rgba(0,61,165,0.4);">🇰🇷</div>
+      <div class="connect-line"></div>
+      <div class="flag-circle" style="background: rgba(232,35,58,0.2); border-color: rgba(232,35,58,0.4);">🇯🇵</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: 문제 정의 -->
+  <div class="slide" id="slide-2">
+    <div class="slide-header">
+      <div class="slide-label"><span data-ko="// 01 · 문제 정의" data-ja="// 01 · 問題定義">// 01 · 문제 정의</span></div>
+      <div class="slide-title"><span data-ko="기존 서비스의 <span style=&quot;color:var(--primary)&quot;>한계</span>" data-ja="既存サービスの<span style=&quot;color:var(--primary)&quot;>限界</span>">기존 서비스의 <span style="color:var(--primary)">한계</span></span></div>
+    </div>
+    <div class="problem-grid">
+      <div class="problem-card" data-delay="0">
+        <div class="problem-icon">🗣️</div>
+        <div class="problem-title"><span data-ko="원어민 매칭만 있고 학습 보조 없음" data-ja="ネイティブマッチングのみで学習サポートなし">원어민 매칭만 있고 학습 보조 없음</span></div>
+        <div class="problem-desc"><span data-ko="파트너와 연결은 됐지만 무슨 말을 해야 할지 몰라 어색하게 끝남" data-ja="パートナーと繋がったが何を話せばいいかわからず気まずく終了">파트너와 연결은 됐지만 무슨 말을 해야 할지 몰라 어색하게 끝남</span></div>
+        <div class="problem-app"><span data-ko="→ Drmatch, Tandem 등" data-ja="→ Drmatch, Tandem等">→ Drmatch, Tandem 등</span></div>
+      </div>
+      <div class="problem-card" data-delay="100">
+        <div class="problem-icon">📚</div>
+        <div class="problem-title"><span data-ko="커리큘럼은 있지만 실전 회화 없음" data-ja="カリキュラムはあるが実践会話なし">커리큘럼은 있지만 실전 회화 없음</span></div>
+        <div class="problem-desc"><span data-ko="체계적으로 공부하지만 실제 원어민과 대화할 기회가 없어 응용이 어려움" data-ja="体系的に学習するが実際にネイティブと会話する機会がなく応用が困難">체계적으로 공부하지만 실제 원어민과 대화할 기회가 없어 응용이 어려움</span></div>
+        <div class="problem-app"><span data-ko="→ Duolingo, Busuu 등" data-ja="→ Duolingo, Busuu等">→ Duolingo, Busuu 등</span></div>
+      </div>
+      <div class="problem-card" data-delay="200">
+        <div class="problem-icon">🎤</div>
+        <div class="problem-title"><span data-ko="발음 피드백의 부재" data-ja="発音フィードバックの欠如">발음 피드백의 부재</span></div>
+        <div class="problem-desc"><span data-ko="제대로 말해도 인식 못 하거나, 틀렸다는 것만 알 뿐 어떻게 틀렸는지 모름" data-ja="正しく話しても認識できなかったり、間違いだけわかり何が違うかわからない">제대로 말해도 인식 못 하거나, 틀렸다는 것만 알 뿐 어떻게 틀렸는지 모름</span></div>
+        <div class="problem-app"><span data-ko="→ Duolingo 음성 인식 한계" data-ja="→ Duolingo音声認識の限界">→ Duolingo 음성 인식 한계</span></div>
+      </div>
+      <div class="problem-card" data-delay="300">
+        <div class="problem-icon">🌏</div>
+        <div class="problem-title"><span data-ko="문화 맥락 번역 부재" data-ja="文化コンテキスト翻訳の欠如">문화 맥락 번역 부재</span></div>
+        <div class="problem-desc"><span data-ko="한국식 직역으로 일본어를 말하면 어색함. 문화적 뉘앙스 변환이 필요함" data-ja="韓国式直訳で日本語を話すと不自然。文化的ニュアンス変換が必要">한국식 직역으로 일본어를 말하면 어색함. 문화적 뉘앙스 변환이 필요함</span></div>
+        <div class="problem-app"><span data-ko="→ 일반 번역 앱의 한계" data-ja="→ 一般翻訳アプリの限界">→ 일반 번역 앱의 한계</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: 핵심 개념 -->
+  <div class="slide" id="slide-3">
+    <div class="slide-header" style="text-align:center; align-self:center;">
+      <div class="slide-label"><span data-ko="// 02 · 핵심 개념" data-ja="// 02 · コアコンセプト">// 02 · 핵심 개념</span></div>
+      <div class="slide-title"><span data-ko="두 앱의 <span style=&quot;color:var(--secondary)&quot;>최강 결합</span>" data-ja="2つのアプリの<span style=&quot;color:var(--secondary)&quot;>最強融合</span>">두 앱의 <span style="color:var(--secondary)">최강 결합</span></span></div>
+    </div>
+    <div class="concept-visual">
+      <div class="concept-box left" data-delay="0">
+        <span class="concept-emoji">🤝</span>
+        <div class="concept-name" style="color:#80a0ff"><span data-ko="언어 교환" data-ja="言語交換">언어 교환</span></div>
+        <div class="concept-desc"><span data-ko="Dr. Match 스타일" data-ja="Dr. Match スタイル">Dr. Match 스타일</span><br><span data-ko="원어민 실시간 대화" data-ja="ネイティブリアルタイム会話">원어민 실시간 대화</span><br><span data-ko="자연스러운 피드백" data-ja="自然なフィードバック">자연스러운 피드백</span></div>
+      </div>
+      <div class="plus-sign">+</div>
+      <div class="concept-box right" data-delay="100">
+        <span class="concept-emoji">📖</span>
+        <div class="concept-name" style="color:#ff8080"><span data-ko="체계적 학습" data-ja="体系的学習">체계적 학습</span></div>
+        <div class="concept-desc">Duolingo 스타일<br><span data-ko="수준별 커리큘럼" data-ja="レベル別カリキュラム">수준별 커리큘럼</span><br><span data-ko="진도 추적 & 복습" data-ja="進捗追跡＆復習">진도 추적 & 복습</span></div>
+      </div>
+      <div class="equals-wrap">
+        <div class="equals-sign">=</div>
+      </div>
+      <div class="concept-box center-res" data-delay="200">
+        <span class="concept-emoji">🚀</span>
+        <div class="concept-name" style="color:var(--secondary)"><span data-ko="최강 학습 효과" data-ja="最強学習効果">최강 학습 효과</span></div>
+        <div class="concept-desc"><span data-ko="실전 대화 × AI 피드백" data-ja="実践会話 × AIフィードバック">실전 대화 × AI 피드백</span><br><span data-ko="문화 맥락 변환" data-ja="文化コンテキスト変換">문화 맥락 변환</span><br><span data-ko="관계 형성 + 언어 습득" data-ja="関係構築 + 言語習得">관계 형성 + 언어 습득</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: 주요 기능 -->
+  <div class="slide" id="slide-4">
+    <div class="slide-header">
+      <div class="slide-label"><span data-ko="// 03 · 핵심 기능" data-ja="// 03 · コア機能">// 03 · 핵심 기능</span></div>
+      <div class="slide-title"><span data-ko="6가지 <span style=&quot;color:var(--accent)&quot;>핵심 기능</span>" data-ja="6つの<span style=&quot;color:var(--accent)&quot;>コア機能</span>">6가지 <span style="color:var(--accent)">핵심 기능</span></span></div>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card" data-delay="0">
+        <div class="feature-num">01</div>
+        <span class="feature-icon">🎯</span>
+        <div class="feature-name"><span data-ko="레벨 테스트 & 학습 로드맵" data-ja="レベルテスト＆学習ロードマップ">레벨 테스트 & 학습 로드맵</span></div>
+        <ul class="feature-items">
+          <li><span data-ko="듣기/읽기/말하기/쓰기 진단" data-ja="リスニング/リーディング/スピーキング/ライティング診断">듣기/읽기/말하기/쓰기 진단</span></li>
+          <li><span data-ko="AI 추천 학습 경로 자동 생성" data-ja="AI推薦学習パス自動生成">AI 추천 학습 경로 자동 생성</span></li>
+        </ul>
+      </div>
+      <div class="feature-card" data-delay="80">
+        <div class="feature-num">02</div>
+        <span class="feature-icon">🔗</span>
+        <div class="feature-name"><span data-ko="맞춤형 원어민 매칭" data-ja="カスタマイズネイティブマッチング">맞춤형 원어민 매칭</span></div>
+        <ul class="feature-items">
+          <li><span data-ko="관심사 / 레벨 / 목적 기반" data-ja="興味/レベル/目的ベース">관심사 / 레벨 / 목적 기반</span></li>
+          <li><span data-ko="1:1 또는 소규모 그룹" data-ja="1:1または少人数グループ">1:1 또는 소규모 그룹</span></li>
+        </ul>
+      </div>
+      <div class="feature-card" data-delay="160">
+        <div class="feature-num">03</div>
+        <span class="feature-icon">🎮</span>
+        <div class="feature-name"><span data-ko="미션형 커리큘럼" data-ja="ミッション型カリキュラム">미션형 커리큘럼</span></div>
+        <ul class="feature-items">
+          <li><span data-ko="&quot;자기소개 3분&quot; 등 실전 미션" data-ja="「自己紹介3分」等の実践ミッション">"자기소개 3분" 등 실전 미션</span></li>
+          <li><span data-ko="AI 스크립트 자동 제안" data-ja="AIスクリプト自動提案">AI 스크립트 자동 제안</span></li>
+        </ul>
+      </div>
+      <div class="feature-card" data-delay="240">
+        <div class="feature-num">04</div>
+        <span class="feature-icon">🌏</span>
+        <div class="feature-name"><span data-ko="문화 맥락 변환 AI" data-ja="文化コンテキスト変換AI">문화 맥락 변환 AI</span></div>
+        <ul class="feature-items">
+          <li><span data-ko="한국어 → 일본 문화식 자연 표현" data-ja="韓国語→日本文化式自然表現">한국어 → 일본 문화식 자연 표현</span></li>
+          <li><span data-ko="완곡/공손 표현 자동 제안" data-ja="婉曲/丁寧表現自動提案">완곡/공손 표현 자동 제안</span></li>
+        </ul>
+      </div>
+      <div class="feature-card" data-delay="320">
+        <div class="feature-num">05</div>
+        <span class="feature-icon">🎤</span>
+        <div class="feature-name"><span data-ko="정밀 발음 분석" data-ja="精密発音分析">정밀 발음 분석</span></div>
+        <ul class="feature-items">
+          <li><span data-ko="자음/모음/억양 단위 분석" data-ja="子音/母音/抑揚単位分析">자음/모음/억양 단위 분석</span></li>
+          <li><span data-ko="구체적 개선 피드백 제공" data-ja="具体的改善フィードバック提供">구체적 개선 피드백 제공</span></li>
+        </ul>
+      </div>
+      <div class="feature-card" data-delay="400">
+        <div class="feature-num">06</div>
+        <span class="feature-icon">📊</span>
+        <div class="feature-name"><span data-ko="선택형 복습 시스템" data-ja="選択型復習システム">선택형 복습 시스템</span></div>
+        <ul class="feature-items">
+          <li><span data-ko="대화 기반 퀴즈 자동 생성" data-ja="会話ベースクイズ自動生成">대화 기반 퀴즈 자동 생성</span></li>
+          <li><span data-ko="SRS 반복 학습 스케줄러" data-ja="SRS反復学習スケジューラー">SRS 반복 학습 스케줄러</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: 경쟁 비교 -->
+  <div class="slide" id="slide-5">
+    <div class="slide-header">
+      <div class="slide-label"><span data-ko="// 04 · 경쟁 분석" data-ja="// 04 · 競合分析">// 04 · 경쟁 분석</span></div>
+      <div class="slide-title"><span data-ko="경쟁사 대비 <span style=&quot;color:var(--secondary)&quot;>차별점</span>" data-ja="競合他社との<span style=&quot;color:var(--secondary)&quot;>差別化</span>">경쟁사 대비 <span style="color:var(--secondary)">차별점</span></span></div>
+    </div>
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th style="width:30%"><span data-ko="기능" data-ja="機能">기능</span></th>
+          <th class="highlight"><span data-ko="우리 앱" data-ja="当アプリ">우리 앱</span></th>
+          <th>Dr. Match</th>
+          <th>Duolingo</th>
+          <th><span data-ko="번역 앱" data-ja="翻訳アプリ">번역 앱</span></th>
+        </tr>
+      </thead>
+      <tbody id="compTableBody">
+        <tr>
+          <td><span data-ko="원어민 실시간 매칭" data-ja="ネイティブリアルタイムマッチング">원어민 실시간 매칭</span></td>
+          <td class="highlight"><span class="check">✓</span></td>
+          <td><span class="check">✓</span></td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="cross">✗</span></td>
+        </tr>
+        <tr>
+          <td><span data-ko="체계적 커리큘럼" data-ja="体系的カリキュラム">체계적 커리큘럼</span></td>
+          <td class="highlight"><span class="check">✓</span></td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="check">✓</span></td>
+          <td><span class="cross">✗</span></td>
+        </tr>
+        <tr>
+          <td>문화 맥락 변환</td>
+          <td class="highlight"><span class="check">✓</span></td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="cross">✗</span></td>
+        </tr>
+        <tr>
+          <td><span data-ko="정밀 발음 피드백" data-ja="精密発音フィードバック">정밀 발음 피드백</span></td>
+          <td class="highlight"><span class="check">✓</span></td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="partial">△</span></td>
+          <td><span class="cross">✗</span></td>
+        </tr>
+        <tr>
+          <td><span data-ko="실전 대화 기반 복습" data-ja="実践会話ベース復習">실전 대화 기반 복습</span></td>
+          <td class="highlight"><span class="check">✓</span></td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="partial">△</span></td>
+          <td><span class="cross">✗</span></td>
+        </tr>
+        <tr>
+          <td><span data-ko="관계 형성 & 친구 만들기" data-ja="関係構築＆友達作り">관계 형성 & 친구 만들기</span></td>
+          <td class="highlight"><span class="check">✓</span></td>
+          <td><span class="check">✓</span></td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="cross">✗</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- SLIDE 6: UX 흐름 -->
+  <div class="slide" id="slide-6">
+    <div class="slide-header">
+      <div class="slide-label"><span data-ko="// 05 · UX 설계" data-ja="// 05 · UX設計">// 05 · UX 설계</span></div>
+      <div class="slide-title"><span data-ko="학습 <span style=&quot;color:var(--accent)&quot;>여정 흐름</span>" data-ja="学習<span style=&quot;color:var(--accent)&quot;>ジャーニーフロー</span>">학습 <span style="color:var(--accent)">여정 흐름</span></span></div>
+    </div>
+    <div class="ux-flow">
+      <div class="ux-step" data-delay="0">
+        <div class="ux-circle">📝</div>
+        <div class="ux-label"><span data-ko="가입 &<br>레벨 테스트" data-ja="登録＆<br>レベルテスト">가입 &<br>레벨 테스트</span></div>
+        <div class="ux-sublabel"><span data-ko="수준별 진단" data-ja="レベル別診断">수준별 진단</span></div>
+      </div>
+      <div class="ux-arrow" data-delay="50">›</div>
+      <div class="ux-step" data-delay="100">
+        <div class="ux-circle">🗺️</div>
+        <div class="ux-label"><span data-ko="AI 학습<br>로드맵 생성" data-ja="AI学習<br>ロードマップ生成">AI 학습<br>로드맵 생성</span></div>
+        <div class="ux-sublabel"><span data-ko="맞춤형 경로" data-ja="カスタマイズパス">맞춤형 경로</span></div>
+      </div>
+      <div class="ux-arrow" data-delay="150">›</div>
+      <div class="ux-step" data-delay="200">
+        <div class="ux-circle">📖</div>
+        <div class="ux-label"><span data-ko="주제 사전<br>학습" data-ja="テーマ事前<br>学習">주제 사전<br>학습</span></div>
+        <div class="ux-sublabel"><span data-ko="카드 & 선택형" data-ja="カード＆選択式">카드 & 선택형</span></div>
+      </div>
+      <div class="ux-arrow" data-delay="250">›</div>
+      <div class="ux-step" data-delay="300">
+        <div class="ux-circle active-step">🤝</div>
+        <div class="ux-label"><span data-ko="원어민과<br>실전 회화" data-ja="ネイティブと<br>実践会話">원어민과<br>실전 회화</span></div>
+        <div class="ux-sublabel"><span data-ko="AI 실시간 개입" data-ja="AIリアルタイム介入">AI 실시간 개입</span></div>
+      </div>
+      <div class="ux-arrow" data-delay="350">›</div>
+      <div class="ux-step" data-delay="400">
+        <div class="ux-circle">💬</div>
+        <div class="ux-label"><span data-ko="자동 피드백<br>& 복습 퀴즈" data-ja="自動フィードバック<br>＆復習クイズ">자동 피드백<br>& 복습 퀴즈</span></div>
+        <div class="ux-sublabel"><span data-ko="대화 기반 학습" data-ja="会話ベース学習">대화 기반 학습</span></div>
+      </div>
+      <div class="ux-arrow" data-delay="450">›</div>
+      <div class="ux-step" data-delay="500">
+        <div class="ux-circle">🏆</div>
+        <div class="ux-label"><span data-ko="레벨업 &<br>친구 형성" data-ja="レベルアップ＆<br>友達形成">레벨업 &<br>친구 형성</span></div>
+        <div class="ux-sublabel"><span data-ko="장기 관계 유지" data-ja="長期関係維持">장기 관계 유지</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 7: AI 실시간 피드백 데모 -->
+  <div class="slide" id="slide-7">
+    <div class="slide-header">
+      <div class="slide-label"><span data-ko="// 06 · AI 실시간 개입" data-ja="// 06 · AIリアルタイム介入">// 06 · AI 실시간 개입</span></div>
+      <div class="slide-title"><span data-ko="대화 중 <span style=&quot;color:var(--secondary)&quot;>자동 학습 전환</span>" data-ja="会話中<span style=&quot;color:var(--secondary)&quot;>自動学習切替</span>">대화 중 <span style="color:var(--secondary)">자동 학습 전환</span></span></div>
+    </div>
+    <div class="feedback-demo">
+      <div class="chat-window">
+        <div class="chat-header">
+          <div class="chat-avatar" style="background:rgba(232,35,58,0.2)">🇯🇵</div>
+          <div>
+            <div class="chat-name"><span data-ko="Yuki (일본인)" data-ja="Yuki (日本人)">Yuki (일본인)</span></div>
+            <div class="chat-status"><span data-ko="● 온라인" data-ja="● オンライン">● 온라인</span></div>
+          </div>
+        </div>
+        <div>
+          <div class="bubble-label"><span data-ko="Yuki가 말함:" data-ja="Yukiの発言:">Yuki가 말함:</span></div>
+          <div class="chat-bubble bubble-jp" data-delay="0">
+            昨日ちょっと体調が悪くて<br>会社を休みました。
+          </div>
+        </div>
+        <div style="align-self:flex-end">
+          <div class="bubble-label" style="text-align:right"><span data-ko="🤖 AI 번역:" data-ja="🤖 AI翻訳:">🤖 AI 번역:</span></div>
+          <div class="chat-bubble bubble-ai" data-delay="200">
+            <div class="bubble-original"><span data-ko="직역: &quot;어제 몸 상태가 조금 안 좋아서 회사를 쉬었습니다&quot;" data-ja="直訳:「昨日ちょっと体調が悪くて会社を休みました」">직역: "어제 몸 상태가 조금 안 좋아서 회사를 쉬었습니다"</span></div>
+            <div class="bubble-easy"><span data-ko="💡 쉬운 표현: &quot;어제 아파서 회사에 못 갔어요&quot;" data-ja="💡 簡単表現:「昨日具合が悪くて会社に行けませんでした」">💡 쉬운 표현: "어제 아파서 회사에 못 갔어요"</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="quiz-section">
+        <div class="quiz-label"><span data-ko="// 자동 퀴즈 생성" data-ja="// 自動クイズ生成">// 자동 퀴즈 생성</span></div>
+        <div class="quiz-q"><span data-ko="&quot;어제 아파서 회사에 못 갔어요&quot;의<br>자연스러운 일본어는?" data-ja="「昨日具合が悪くて会社に行けませんでした」の<br>自然な日本語は？">"어제 아파서 회사에 못 갔어요"의<br>자연스러운 일본어는?</span></div>
+        <div class="quiz-options">
+          <div class="quiz-opt wrong" data-delay="0">
+            <div class="opt-label">A</div>
+            昨日病院に行きました
+          </div>
+          <div class="quiz-opt correct" data-delay="100">
+            <div class="opt-label">B</div>
+            昨日体調が悪くて会社に行けませんでした ✓
+          </div>
+          <div class="quiz-opt" data-delay="200">
+            <div class="opt-label">C</div>
+            昨日会社が楽しかったです
+          </div>
+          <div class="quiz-opt" data-delay="300">
+            <div class="opt-label">D</div>
+            昨日雨でした
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 8: 발음 피드백 -->
+  <div class="slide" id="slide-8">
+    <div class="slide-header">
+      <div class="slide-label"><span data-ko="// 07 · 발음 분석 시스템" data-ja="// 07 · 発音分析システム">// 07 · 발음 분석 시스템</span></div>
+      <div class="slide-title"><span data-ko="Duolingo를 <span style=&quot;color:var(--primary)&quot;>넘는</span> 정밀 피드백" data-ja="Duolingoを<span style=&quot;color:var(--primary)&quot;>超える</span>精密フィードバック">Duolingo를 <span style="color:var(--primary)">넘는</span> 정밀 피드백</span></div>
+    </div>
+    <div class="pronunciation-demo">
+      <div class="vs-card bad">
+        <div class="vs-label bad-label"><span data-ko="❌ 기존 앱 (Duolingo)" data-ja="❌ 既存アプリ (Duolingo)">❌ 기존 앱 (Duolingo)</span></div>
+        <div class="word-display" style="color:rgba(255,255,255,0.3)">あなた</div>
+        <div style="text-align:center; margin: 20px 0;">
+          <div style="font-size: 48px;">🔴</div>
+          <div style="margin-top: 12px; color: var(--primary); font-weight: 700;"><span data-ko="다시 시도하세요" data-ja="もう一度お試しください">다시 시도하세요</span></div>
+        </div>
+        <div class="feedback-list">
+          <div class="feedback-item visible" style="color:var(--muted)">
+            <span>😕</span> <span data-ko="무엇이 틀렸는지 알 수 없음" data-ja="何が間違っているかわからない">무엇이 틀렸는지 알 수 없음</span>
+          </div>
+          <div class="feedback-item visible" style="color:var(--muted)">
+            <span>😕</span> <span data-ko="발음 개선 방향 제시 없음" data-ja="発音改善の方向性提示なし">발음 개선 방향 제시 없음</span>
+          </div>
+          <div class="feedback-item visible" style="color:var(--muted)">
+            <span>😕</span> <span data-ko="인식률 낮아 좌절감 증가" data-ja="認識率が低く挫折感増加">인식률 낮아 좌절감 증가</span>
+          </div>
+        </div>
+      </div>
+      <div class="vs-card good">
+        <div class="vs-label good-label"><span data-ko="✅ 우리 앱 정밀 분석" data-ja="✅ 当アプリ精密分析">✅ 우리 앱 정밀 분석</span></div>
+        <div class="word-display" style="color:var(--secondary)">あなた</div>
+        <div class="syllable-bars" id="sylBars">
+          <div class="syllable">
+            <div class="syl-bar-wrap">
+              <div class="syl-bar" id="bar-a" style="height:0%; background: var(--primary);"></div>
+            </div>
+            <div class="syl-dot" style="background:var(--primary)"></div>
+            <div class="syl-label">あ</div>
+          </div>
+          <div class="syllable">
+            <div class="syl-bar-wrap">
+              <div class="syl-bar" id="bar-na" style="height:0%; background: var(--accent);"></div>
+            </div>
+            <div class="syl-dot" style="background:var(--accent)"></div>
+            <div class="syl-label">な</div>
+          </div>
+          <div class="syllable">
+            <div class="syl-bar-wrap">
+              <div class="syl-bar" id="bar-ta" style="height:0%; background: var(--secondary);"></div>
+            </div>
+            <div class="syl-dot" style="background:var(--secondary)"></div>
+            <div class="syl-label">た</div>
+          </div>
+        </div>
+        <div class="feedback-list">
+          <div class="feedback-item" data-delay="0">
+            <span style="color:var(--primary)">🔴</span>
+            <span style="font-size:12px"><span data-ko="&quot;あ&quot;가 너무 짧습니다 — 길게 발음하세요" data-ja="「あ」が短すぎます — 長く発音してください">"あ"가 너무 짧습니다 — 길게 발음하세요</span></span>
+          </div>
+          <div class="feedback-item" data-delay="150">
+            <span style="color:var(--accent)">🟡</span>
+            <span style="font-size:12px"><span data-ko="&quot;な&quot;에 힘이 너무 들어갔습니다" data-ja="「な」に力が入りすぎています">"な"에 힘이 너무 들어갔습니다</span></span>
+          </div>
+          <div class="feedback-item" data-delay="300">
+            <span style="color:var(--secondary)">🟢</span>
+            <span style="font-size:12px"><span data-ko="&quot;た&quot; 발음은 자연스럽습니다!" data-ja="「た」の発音は自然です！">"た" 발음은 자연스럽습니다!</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 9: 수익 모델 -->
+  <div class="slide" id="slide-9">
+    <div class="slide-header">
+      <div class="slide-label"><span data-ko="// 08 · 비즈니스 모델" data-ja="// 08 · ビジネスモデル">// 08 · 비즈니스 모델</span></div>
+      <div class="slide-title"><span data-ko="다양한 <span style=&quot;color:var(--accent)&quot;>수익 구조</span>" data-ja="多様な<span style=&quot;color:var(--accent)&quot;>収益構造</span>">다양한 <span style="color:var(--accent)">수익 구조</span></span></div>
+    </div>
+    <div class="revenue-grid">
+      <div class="revenue-card featured" data-delay="0">
+        <div class="revenue-icon">💎</div>
+        <div class="revenue-name"><span data-ko="프리미엄 구독" data-ja="プレミアムサブスクリプション">프리미엄 구독</span></div>
+        <div class="revenue-desc"><span data-ko="무제한 AI 피드백, 무제한 매칭, 심화 커리큘럼 이용권" data-ja="無制限AIフィードバック、無制限マッチング、上級カリキュラム利用権">무제한 AI 피드백, 무제한 매칭, 심화 커리큘럼 이용권</span></div>
+        <div class="revenue-tag tag-b2c"><span data-ko="B2C · 월정액" data-ja="B2C · 月額定額">B2C · 월정액</span></div>
+      </div>
+      <div class="revenue-card" data-delay="100">
+        <div class="revenue-icon">🤖</div>
+        <div class="revenue-name"><span data-ko="AI 분석 리포트" data-ja="AI分析レポート">AI 분석 리포트</span></div>
+        <div class="revenue-desc"><span data-ko="발음 상세 분석, 문화 표현 레포트, 학습 패턴 인사이트" data-ja="発音詳細分析、文化表現レポート、学習パターンインサイト">발음 상세 분석, 문화 표현 레포트, 학습 패턴 인사이트</span></div>
+        <div class="revenue-tag tag-ai"><span data-ko="AI 프리미엄" data-ja="AIプレミアム">AI 프리미엄</span></div>
+      </div>
+      <div class="revenue-card" data-delay="200">
+        <div class="revenue-icon">👨‍🏫</div>
+        <div class="revenue-name"><span data-ko="전문 강사 AI 세션" data-ja="専門講師AIセッション">전문 강사 AI 세션</span></div>
+        <div class="revenue-desc"><span data-ko="특정 분야(비즈니스/여행/드라마) 전문 <span data-ko="AI 강사" data-ja="AI講師">AI 강사</span>와 집중 세션" data-ja="特定分野（ビジネス/旅行/ドラマ）専門AI講師との集中セッション">특정 분야(비즈니스/여행/드라마) 전문 AI 강사와 집중 세션</span></div>
+        <div class="revenue-tag tag-ai">AI 강사</div>
+      </div>
+      <div class="revenue-card" data-delay="300">
+        <div class="revenue-icon">🏢</div>
+        <div class="revenue-name"><span data-ko="기업 라이선스" data-ja="企業ライセンス">기업 라이선스</span></div>
+        <div class="revenue-desc"><span data-ko="일본 진출 기업, 교환학생 프로그램 등 B2B 단체 계약" data-ja="日本進出企業、交換留学プログラム等B2B団体契約">일본 진출 기업, 교환학생 프로그램 등 B2B 단체 계약</span></div>
+        <div class="revenue-tag tag-b2b">B2B</div>
+      </div>
+      <div class="revenue-card" data-delay="400">
+        <div class="revenue-icon">🏫</div>
+        <div class="revenue-name"><span data-ko="학교/학원 연계" data-ja="学校/塾連携">학교/학원 연계</span></div>
+        <div class="revenue-desc"><span data-ko="어학원, 대학교 교양 과목 연계 학습 도구 공급" data-ja="語学学校、大学教養科目連携学習ツール供給">어학원, 대학교 교양 과목 연계 학습 도구 공급</span></div>
+        <div class="revenue-tag tag-b2b"><span data-ko="교육기관" data-ja="教育機関">교육기관</span></div>
+      </div>
+      <div class="revenue-card" data-delay="500">
+        <div class="revenue-icon">⭐</div>
+        <div class="revenue-name"><span data-ko="회화 세션 포인트" data-ja="会話セッションポイント">회화 세션 포인트</span></div>
+        <div class="revenue-desc"><span data-ko="세션 추가 구매, 우선 매칭 포인트, 특별 파트너 연결권" data-ja="セッション追加購入、優先マッチングポイント、特別パートナー接続権">세션 추가 구매, 우선 매칭 포인트, 특별 파트너 연결권</span></div>
+        <div class="revenue-tag tag-b2c"><span data-ko="In-App 결제" data-ja="In-App決済">In-App 결제</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 10: AI 선생님 개요 -->
+  <div class="slide" id="slide-10">
+    <div class="ai-orb"></div>
+    <div class="badge" style="animation:fadeInUp 0.8s ease 0.2s both"><span data-ko="🤖 AI TEACHER · 확장 아이디어" data-ja="🤖 AI TEACHER · 拡張アイデア">🤖 AI TEACHER · 확장 아이디어</span></div>
+    <div class="title-main" style="animation:fadeInUp 0.8s ease 0.4s both">
+      <span style="color:var(--secondary)">AI</span><br>
+      <span style="color:var(--light)"><span data-ko="디지털" data-ja="デジタル">디지털</span></span><br>
+      <span style="color:var(--accent)"><span data-ko="선생님" data-ja="先生">선생님</span></span>
+    </div>
+    <div class="title-sub" style="animation:fadeInUp 0.8s ease 0.6s both">
+      <span data-ko="연예인처럼 매력적인 AI 아바타가" data-ja="芸能人のように魅力的なAIアバターが">연예인처럼 매력적인 AI 아바타가</span><br>
+      <strong style="color:var(--light)"><span data-ko="반 프로그램 + 반 AI" data-ja="半プログラム + 半AI">반 프로그램 + 반 AI</span></strong>로 운영되는<br>
+      <span data-ko="양방향 실시간 학습 튜터" data-ja="双方向リアルタイム学習チューター">양방향 실시간 학습 튜터</span>
+    </div>
+    <div class="title-tags" style="animation:fadeInUp 0.8s ease 0.8s both">
+      <span class="tag"><span data-ko="#디지털휴먼" data-ja="#デジタルヒューマン">#디지털휴먼</span></span>
+      <span class="tag"><span data-ko="#양방향대화" data-ja="#双方向対話">#양방향대화</span></span>
+      <span class="tag"><span data-ko="#게임형학습" data-ja="#ゲーム型学習">#게임형학습</span></span>
+      <span class="tag"><span data-ko="#가드레일AI" data-ja="#ガードレールAI">#가드레일AI</span></span>
+      <span class="tag"><span data-ko="#70ms반응속도" data-ja="#70ms反応速度">#70ms반응속도</span></span>
+    </div>
+    <div class="ai-avatar-ring">
+      <div class="ring-outer"></div>
+      <div class="ring-inner"></div>
+      <div class="ai-face">🧑‍🏫</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 11: 기술 구조 (4대 기술 요소) -->
+  <div class="slide" id="slide-11">
+    <div class="slide-header">
+      <div class="slide-label"><span data-ko="// 09 · AI 선생님 기술 구조" data-ja="// 09 · AI先生技術構造">// 09 · AI 선생님 기술 구조</span></div>
+      <div class="slide-title"><span data-ko="<span style=&quot;color:var(--secondary)&quot;>4가지 핵심 기술</span>의 결합" data-ja="<span style=&quot;color:var(--secondary)&quot;>4つのコア技術</span>の融合"><span style="color:var(--secondary)">4가지 핵심 기술</span>의 결합</span></div>
+    </div>
+    <div class="tech-stack">
+      <div class="tech-card c1" data-delay="0">
+        <div class="tech-icon-wrap c1">🎭</div>
+        <div class="tech-info">
+          <div class="tech-name"><span data-ko="시각 — 디지털 휴먼 아바타" data-ja="視覚 — デジタルヒューマンアバター">시각 — 디지털 휴먼 아바타</span></div>
+          <div class="tech-desc"><span data-ko="연예인처럼 매력적이고 자연스러운 AI 아바타. 텍스트를 입력하면 입 모양과 표정이 실시간으로 자연스럽게 움직임." data-ja="芸能人のように魅力的で自然なAIアバター。テキストを入力すると口の形や表情がリアルタイムで自然に動く。">연예인처럼 매력적이고 자연스러운 AI 아바타. 텍스트를 입력하면 입 모양과 표정이 실시간으로 자연스럽게 움직임.</span></div>
+          <div class="tech-chips">
+            <span class="tech-chip">MetaHuman</span>
+            <span class="tech-chip">HeyGen API</span>
+            <span class="tech-chip">AI Video Synthesis</span>
+          </div>
+        </div>
+      </div>
+      <div class="tech-card c2" data-delay="100">
+        <div class="tech-icon-wrap c2">🧠</div>
+        <div class="tech-info">
+          <div class="tech-name"><span data-ko="두뇌 — LLM + RAG" data-ja="頭脳 — LLM + RAG">두뇌 — LLM + RAG</span></div>
+          <div class="tech-desc"><span data-ko="커리큘럼 문서 안에서만 대화하도록 RAG로 제한. 엉뚱한 질문도 받아주되 2문장 내로 학습으로 자연스럽게 유도." data-ja="カリキュラム文書内でのみ会話するようRAGで制限。突飛な質問も受け入れつつ2文以内で学習に自然に誘導。">커리큘럼 문서 안에서만 대화하도록 RAG로 제한. 엉뚱한 질문도 받아주되 2문장 내로 학습으로 자연스럽게 유도.</span></div>
+          <div class="tech-chips">
+            <span class="tech-chip">GPT-4o / Gemini</span>
+            <span class="tech-chip">RAG 가드레일</span>
+            <span class="tech-chip">Prompt Engineering</span>
+          </div>
+        </div>
+      </div>
+      <div class="tech-card c3" data-delay="200">
+        <div class="tech-icon-wrap c3">🎤</div>
+        <div class="tech-info">
+          <div class="tech-name"><span data-ko="청각 — 감정 TTS & STT" data-ja="聴覚 — 感情TTS＆STT">청각 — 감정 TTS & STT</span></div>
+          <div class="tech-desc"><span data-ko="아이의 불분명한 발음도 인식하는 고성능 음성인식. 딱딱한 기계음이 아닌 감정이 담긴 목소리로 칭찬과 격려." data-ja="子供の不明瞭な発音も認識する高性能音声認識。硬い機械音ではなく感情のこもった声で褒めて励ます。">아이의 불분명한 발음도 인식하는 고성능 음성인식. 딱딱한 기계음이 아닌 감정이 담긴 목소리로 칭찬과 격려.</span></div>
+          <div class="tech-chips">
+            <span class="tech-chip">ElevenLabs TTS</span>
+            <span class="tech-chip">Whisper STT</span>
+            <span class="tech-chip">Gemini Flash Live</span>
+          </div>
+        </div>
+      </div>
+      <div class="tech-card c4" data-delay="300">
+        <div class="tech-icon-wrap c4">⚡</div>
+        <div class="tech-info">
+          <div class="tech-name"><span data-ko="트리거 — 프로그램 개입 이벤트" data-ja="トリガー — プログラム介入イベント">트리거 — 프로그램 개입 이벤트</span></div>
+          <div class="tech-desc"><span data-ko="AI가 &quot;게임 해볼까?&quot; 하는 순간, 앱 화면에 플래시 카드·퀴즈 UI가 팝업. 커리큘럼과 AI 대화를 실시간으로 동기화." data-ja="AIが「ゲームしてみよう？」と言う瞬間、アプリ画面にフラッシュカード・クイズUIがポップアップ。カリキュラムとAI会話をリアルタイムで同期化。">AI가 "게임 해볼까?" 하는 순간, 앱 화면에 플래시 카드·퀴즈 UI가 팝업. 커리큘럼과 AI 대화를 실시간으로 동기화.</span></div>
+          <div class="tech-chips">
+            <span class="tech-chip">WebSocket / WebRTC</span>
+            <span class="tech-chip">Event Trigger</span>
+            <span class="tech-chip">State Sync</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 12: 게임형 콘텐츠 -->
+  <div class="slide" id="slide-12">
+    <div class="slide-header">
+      <div class="slide-label"><span data-ko="// 10 · 게임형 학습 콘텐츠" data-ja="// 10 · ゲーム型学習コンテンツ">// 10 · 게임형 학습 콘텐츠</span></div>
+      <div class="slide-title"><span data-ko="눈으로 보고 손으로 하는 <span style=&quot;color:var(--accent)&quot;>학습 게임</span>" data-ja="目で見て手で触れる<span style=&quot;color:var(--accent)&quot;>学習ゲーム</span>">눈으로 보고 손으로 하는 <span style="color:var(--accent)">학습 게임</span></span></div>
+    </div>
+    <div class="game-showcase">
+      <div class="game-card g1" data-delay="0">
+        <div class="game-emoji">🃏</div>
+        <div class="game-name"><span data-ko="그림 카드 퀴즈" data-ja="絵カードクイズ">그림 카드 퀴즈</span></div>
+        <div class="game-desc"><span data-ko="AI 선생님이 그림 카드를 보여주며 힌트를 줌. &quot;이것이 뭐였지?&quot; — 매번 다른 표현으로 자연스러운 칭찬/격려." data-ja="AI先生が絵カードを見せてヒントを出す。「これは何だっけ？」— 毎回違う表現で自然な褒め/励まし。">AI 선생님이 그림 카드를 보여주며 힌트를 줌. "이것이 뭐였지?" — 매번 다른 표현으로 자연스러운 칭찬/격려.</span></div>
+        <div class="game-preview">
+          <div class="preview-label">// PREVIEW</div>
+          <div class="card-flip-demo">
+            <div class="mini-card">🐱</div>
+            <div class="mini-card">🐶</div>
+            <div class="mini-card face-down"></div>
+            <div class="mini-card face-down"></div>
+            <div class="mini-card face-down"></div>
+          </div>
+          <div style="font-size:10px;color:var(--secondary);margin-top:6px"><span data-ko="✓ 잘했어요! 고양이 맞아요~" data-ja="✓ よくできました！猫で正解です〜">✓ 잘했어요! 고양이 맞아요~</span></div>
+        </div>
+      </div>
+      <div class="game-card g2" data-delay="120">
+        <div class="game-emoji">🎭</div>
+        <div class="game-name"><span data-ko="상황별 롤플레이" data-ja="場面別ロールプレイ">상황별 롤플레이</span></div>
+        <div class="game-desc"><span data-ko="카페 주문·여행·쇼핑 등 실생활 시나리오. AI 선생님이 점원·친구 역할로 자연스러운 대화 유도. 공백의 공포 해결." data-ja="カフェ注文・旅行・ショッピング等の実生活シナリオ。AI先生が店員・友達役で自然な会話を誘導。沈黙の恐怖を解消。">카페 주문·여행·쇼핑 등 실생활 시나리오. AI 선생님이 점원·친구 역할로 자연스러운 대화 유도. 공백의 공포 해결.</span></div>
+        <div class="game-preview">
+          <div class="preview-label">// PREVIEW</div>
+          <div class="roleplay-scene">
+            <div class="scene-bubble teacher"><span data-ko="🧑‍🏫 커피 한 잔 주세요?" data-ja="🧑‍🏫 コーヒー1杯ください？">🧑‍🏫 커피 한 잔 주세요?</span></div>
+            <div class="scene-bubble student">코히— いちまい...</div>
+            <div class="scene-bubble teacher"><span data-ko="아, 거의 맞아요! 💡" data-ja="あ、ほぼ正解です！💡">아, 거의 맞아요! 💡</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="game-card g3" data-delay="240">
+        <div class="game-emoji">📊</div>
+        <div class="game-name"><span data-ko="실시간 성장 시각화" data-ja="リアルタイム成長ビジュアライゼーション">실시간 성장 시각화</span></div>
+        <div class="game-desc"><span data-ko="AI 교정 유형을 문법·단어·자연스러움·문화로 분류해 시각화. &quot;성장하는 느낌&quot;이 학습 동기를 지속적으로 높임." data-ja="AI校正タイプを文法・単語・自然さ・文化に分類して可視化。「成長する実感」が学習モチベーションを持続的に向上。">AI 교정 유형을 문법·단어·자연스러움·문화로 분류해 시각화. "성장하는 느낌"이 학습 동기를 지속적으로 높임.</span></div>
+        <div class="game-preview">
+          <div class="preview-label">// PREVIEW</div>
+          <div class="score-bars">
+            <div class="score-row">
+              <span style="width:48px;flex-shrink:0"><span data-ko="문법" data-ja="文法">문법</span></span>
+              <div class="score-bar-wrap"><div class="score-bar-fill" id="sb1" style="background:var(--secondary);width:0%"></div></div>
+              <span class="lat-val" style="color:var(--secondary)">82%</span>
+            </div>
+            <div class="score-row">
+              <span style="width:48px;flex-shrink:0"><span data-ko="발음" data-ja="発音">발음</span></span>
+              <div class="score-bar-wrap"><div class="score-bar-fill" id="sb2" style="background:var(--accent);width:0%"></div></div>
+              <span class="lat-val" style="color:var(--accent)">67%</span>
+            </div>
+            <div class="score-row">
+              <span style="width:48px;flex-shrink:0"><span data-ko="문화" data-ja="文化">문화</span></span>
+              <div class="score-bar-wrap"><div class="score-bar-fill" id="sb3" style="background:var(--primary);width:0%"></div></div>
+              <span class="lat-val" style="color:var(--primary)">75%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 13: 반응 속도 & 파이프라인 -->
+  <div class="slide" id="slide-13">
+    <div class="slide-header">
+      <div class="slide-label"><span data-ko="// 11 · 핵심 기술 과제" data-ja="// 11 · コア技術課題">// 11 · 핵심 기술 과제</span></div>
+      <div class="slide-title"><span data-ko="초저지연 <span style=&quot;color:var(--secondary)&quot;>실시간 반응</span> 시스템" data-ja="超低遅延<span style=&quot;color:var(--secondary)&quot;>リアルタイム反応</span>システム">초저지연 <span style="color:var(--secondary)">실시간 반응</span> 시스템</span></div>
+    </div>
+    <div class="latency-layout">
+      <div class="latency-panel" data-delay="0">
+        <div class="latency-panel-title">// TARGET LATENCY</div>
+        <div class="latency-hero">
+          <div class="latency-num" id="latencyNum">0</div>
+          <div class="latency-unit"><span data-ko="ms 이내 목표 응답" data-ja="ms以内目標応答">ms 이내 목표 응답</span></div>
+        </div>
+        <div class="latency-compare">
+          <div class="lat-row">
+            <div class="lat-label"><span data-ko="일반 챗봇" data-ja="一般チャットボット">일반 챗봇</span></div>
+            <div class="lat-bar-wrap"><div class="lat-bar" id="lb1" style="background:var(--primary)"></div></div>
+            <div class="lat-val" style="color:var(--primary)">3000ms</div>
+          </div>
+          <div class="lat-row">
+            <div class="lat-label"><span data-ko="기존 음성AI" data-ja="既存音声AI">기존 음성AI</span></div>
+            <div class="lat-bar-wrap"><div class="lat-bar" id="lb2" style="background:var(--accent)"></div></div>
+            <div class="lat-val" style="color:var(--accent)">800ms</div>
+          </div>
+          <div class="lat-row">
+            <div class="lat-label">Gemini Flash</div>
+            <div class="lat-bar-wrap"><div class="lat-bar" id="lb3" style="background:var(--secondary)"></div></div>
+            <div class="lat-val" style="color:var(--secondary)">70ms</div>
+          </div>
+          <div class="lat-row">
+            <div class="lat-label" style="color:var(--light);font-weight:700"><span data-ko="우리 목표" data-ja="当社目標">우리 목표</span></div>
+            <div class="lat-bar-wrap"><div class="lat-bar" id="lb4" style="background:var(--secondary);box-shadow:0 0 8px var(--secondary)"></div></div>
+            <div class="lat-val" style="color:var(--secondary);font-weight:700">&lt;1000ms</div>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.6;border-top:1px solid rgba(255,255,255,0.06);padding-top:12px">
+          💡 <span data-ko="아이가 말을 끝낸 후 2~3초 이상 딜레이 발생 시" data-ja="子供が話し終えてから2〜3秒以上の遅延が発生すると">아이가 말을 끝낸 후 2~3초 이상 딜레이 발생 시</span><br><span data-ko="집중력이 깨져 학습 효과 급감 — 1초 이내 최적화가 핵심" data-ja="集中力が途切れ学習効果が急減 — 1秒以内の最適化が核心">집중력이 깨져 학습 효과 급감 — 1초 이내 최적화가 핵심</span>
+        </div>
+      </div>
+      <div class="latency-panel" data-delay="150">
+        <div class="latency-panel-title">// PROCESSING PIPELINE</div>
+        <div class="pipeline-flow">
+          <div class="pipe-step" data-delay="300">
+            <div class="pipe-icon">🎤</div>
+            <div class="pipe-name"><span data-ko="음성 입력" data-ja="音声入力">음성 입력</span></div>
+            <div class="pipe-tech">WebRTC Stream</div>
+          </div>
+          <div class="pipe-arrow" data-delay="380">↓</div>
+          <div class="pipe-step" data-delay="400">
+            <div class="pipe-icon">📝</div>
+            <div class="pipe-name"><span data-ko="실시간 음성→텍스트" data-ja="リアルタイム音声→テキスト">실시간 음성→텍스트</span></div>
+            <div class="pipe-tech">Gemini Flash Live / Whisper</div>
+          </div>
+          <div class="pipe-arrow" data-delay="480">↓</div>
+          <div class="pipe-step" data-delay="500">
+            <div class="pipe-icon">🧠</div>
+            <div class="pipe-name"><span data-ko="AI 응답 생성" data-ja="AI応答生成">AI 응답 생성</span></div>
+            <div class="pipe-tech">LLM + RAG Guardrail</div>
+          </div>
+          <div class="pipe-arrow" data-delay="580">↓</div>
+          <div class="pipe-step" data-delay="600">
+            <div class="pipe-icon">🔊</div>
+            <div class="pipe-name"><span data-ko="감정 음성 합성" data-ja="感情音声合成">감정 음성 합성</span></div>
+            <div class="pipe-tech">ElevenLabs TTS</div>
+          </div>
+          <div class="pipe-arrow" data-delay="680">↓</div>
+          <div class="pipe-step" data-delay="700">
+            <div class="pipe-icon">🎭</div>
+            <div class="pipe-name"><span data-ko="아바타 립싱크 렌더링" data-ja="アバターリップシンクレンダリング">아바타 립싱크 렌더링</span></div>
+            <div class="pipe-tech">HeyGen / MetaHuman</div>
+          </div>
+          <div class="pipe-arrow" data-delay="780">↓</div>
+          <div class="pipe-step" data-delay="800" style="border:1px solid rgba(0,201,167,0.3);background:rgba(0,201,167,0.08)">
+            <div class="pipe-icon">📱</div>
+            <div class="pipe-name"><span data-ko="화면 출력 + 게임 트리거" data-ja="画面出力 + ゲームトリガー">화면 출력 + 게임 트리거</span></div>
+            <div class="pipe-tech">State Sync + Event Trigger</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 14: 결론 -->
+  <div class="slide" id="slide-14" style="justify-content:center;align-items:center;text-align:center;">
+    <div class="bg-radial"></div>
+    <div class="conclusion-tag"><span data-ko="// CONCLUSION · 결론" data-ja="// CONCLUSION · 結論">// CONCLUSION · 결론</span></div>
+    <div class="conclusion-title">
+      <span data-ko="실전 대화가" data-ja="実践会話が">실전 대화가</span><br><span data-ko="곧 <span>교재</span>가 된다" data-ja="そのまま<span>教材</span>になる">곧 <span>교재</span>가 된다</span>
+    </div>
+    <div class="strength-bars">
+      <div class="strength-item">
+        <div class="strength-ring">
+          <svg viewBox="0 0 80 80" width="80" height="80">
+            <circle class="ring-bg" cx="40" cy="40" r="35"/>
+            <circle class="ring-fill" id="ring1" cx="40" cy="40" r="35" stroke="var(--secondary)" stroke-dasharray="220" stroke-dashoffset="220"/>
+          </svg>
+          <div class="ring-val" style="color:var(--secondary)">95%</div>
+        </div>
+        <div class="strength-name"><span data-ko="시장 차별화" data-ja="市場差別化">시장 차별화</span></div>
+      </div>
+      <div class="strength-item">
+        <div class="strength-ring">
+          <svg viewBox="0 0 80 80" width="80" height="80">
+            <circle class="ring-bg" cx="40" cy="40" r="35"/>
+            <circle class="ring-fill" id="ring2" cx="40" cy="40" r="35" stroke="var(--accent)" stroke-dasharray="220" stroke-dashoffset="220"/>
+          </svg>
+          <div class="ring-val" style="color:var(--accent)">88%</div>
+        </div>
+        <div class="strength-name">학습 효과</div>
+      </div>
+      <div class="strength-item">
+        <div class="strength-ring">
+          <svg viewBox="0 0 80 80" width="80" height="80">
+            <circle class="ring-bg" cx="40" cy="40" r="35"/>
+            <circle class="ring-fill" id="ring3" cx="40" cy="40" r="35" stroke="var(--primary)" stroke-dasharray="220" stroke-dashoffset="220"/>
+          </svg>
+          <div class="ring-val" style="color:var(--primary)">92%</div>
+        </div>
+        <div class="strength-name"><span data-ko="사용자 몰입" data-ja="ユーザー没入">사용자 몰입</span></div>
+      </div>
+      <div class="strength-item">
+        <div class="strength-ring">
+          <svg viewBox="0 0 80 80" width="80" height="80">
+            <circle class="ring-bg" cx="40" cy="40" r="35"/>
+            <circle class="ring-fill" id="ring4" cx="40" cy="40" r="35" stroke="#c084fc" stroke-dasharray="220" stroke-dashoffset="220"/>
+          </svg>
+          <div class="ring-val" style="color:#c084fc">85%</div>
+        </div>
+        <div class="strength-name"><span data-ko="구현 가능성" data-ja="実現可能性">구현 가능성</span></div>
+      </div>
+    </div>
+    <div class="motto"><span data-ko="그 나라 언어를 배우려면 연애를 해라" data-ja="その国の言語を学びたければ恋愛をしろ">그 나라 언어를 배우려면 연애를 해라</span></div>
+  </div>
+
+</div>
+
+<!-- Navigation -->
+<nav class="nav">
+  <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)" disabled><span data-ko="← 이전" data-ja="← 前へ">← 이전</span></button>
+  <div class="slide-dots" id="dots"></div>
+  <div class="slide-counter" id="counter">1 / 10</div>
+  <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)"><span data-ko="다음 →" data-ja="次へ →">다음 →</span></button>
+</nav>
+
+<script>
+  const totalSlides = 14;
+  let current = 1;
+  let animating = false;
+
+  // Build dots
+  const dotsEl = document.getElementById('dots');
+  for (let i = 1; i <= totalSlides; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 1 ? ' active' : '');
+    d.onclick = () => goToSlide(i);
+    dotsEl.appendChild(d);
+  }
+
+  function updateNav() {
+    document.getElementById('prevBtn').disabled = current === 1;
+    document.getElementById('nextBtn').disabled = current === totalSlides;
+    document.getElementById('counter').textContent = `${current} / ${totalSlides}`;
+    document.getElementById('slideNum').textContent = `${String(current).padStart(2,'0')} / ${totalSlides}`;
+    document.getElementById('progressBar').style.width = `${(current / totalSlides) * 100}%`;
+    document.querySelectorAll('.dot').forEach((d, i) => {
+      d.classList.toggle('active', i + 1 === current);
+    });
+  }
+
+  function triggerAnimations(slideId) {
+    const slide = document.getElementById(`slide-${slideId}`);
+    if (!slide) return;
+
+    // Problem cards
+    slide.querySelectorAll('.problem-card').forEach((el, i) => {
+      setTimeout(() => el.classList.add('visible'), (el.dataset.delay || i * 100) + 100);
+    });
+
+    // Feature cards
+    slide.querySelectorAll('.feature-card').forEach(el => {
+      setTimeout(() => el.classList.add('visible'), parseInt(el.dataset.delay || 0) + 100);
+    });
+
+    // Concept boxes
+    slide.querySelectorAll('.concept-box').forEach(el => {
+      setTimeout(() => el.classList.add('visible'), parseInt(el.dataset.delay || 0) + 200);
+    });
+    slide.querySelectorAll('.plus-sign, .equals-wrap').forEach(el => {
+      setTimeout(() => el.classList.add('visible'), 600);
+    });
+
+    // Comparison table rows
+    if (slideId === 5) {
+      document.querySelectorAll('#compTableBody td').forEach((td, i) => {
+        setTimeout(() => td.classList.add('visible'), 100 + i * 30);
+      });
+    }
+
+    // UX flow
+    slide.querySelectorAll('.ux-step').forEach(el => {
+      setTimeout(() => el.classList.add('visible'), parseInt(el.dataset.delay || 0) + 100);
+    });
+    slide.querySelectorAll('.ux-arrow').forEach(el => {
+      setTimeout(() => el.classList.add('visible'), parseInt(el.dataset.delay || 0) + 100);
+    });
+
+    // Chat bubbles & quiz options
+    slide.querySelectorAll('.chat-bubble, .quiz-opt').forEach(el => {
+      setTimeout(() => el.classList.add('visible'), parseInt(el.dataset.delay || 0) + 200);
+    });
+
+    // Pronunciation bars
+    if (slideId === 8) {
+      setTimeout(() => {
+        document.getElementById('bar-a').style.height = '40%';
+        document.getElementById('bar-na').style.height = '70%';
+        document.getElementById('bar-ta').style.height = '90%';
+      }, 300);
+      slide.querySelectorAll('.feedback-item').forEach(el => {
+        setTimeout(() => el.classList.add('visible'), parseInt(el.dataset.delay || 0) + 400);
+      });
+    }
+
+    // Revenue cards
+    slide.querySelectorAll('.revenue-card').forEach(el => {
+      setTimeout(() => el.classList.add('visible'), parseInt(el.dataset.delay || 0) + 100);
+    });
+
+    // Slide 11: tech cards
+    if (slideId === 11) {
+      slide.querySelectorAll('.tech-card').forEach(el => {
+        setTimeout(() => el.classList.add('visible'), parseInt(el.dataset.delay || 0) + 100);
+      });
+    }
+
+    // Slide 12: game cards + score bars
+    if (slideId === 12) {
+      slide.querySelectorAll('.game-card').forEach(el => {
+        setTimeout(() => el.classList.add('visible'), parseInt(el.dataset.delay || 0) + 100);
+      });
+      setTimeout(() => {
+        const sb1 = document.getElementById('sb1');
+        const sb2 = document.getElementById('sb2');
+        const sb3 = document.getElementById('sb3');
+        if (sb1) sb1.style.width = '82%';
+        if (sb2) sb2.style.width = '67%';
+        if (sb3) sb3.style.width = '75%';
+      }, 600);
+    }
+
+    // Slide 13: latency panel + pipeline + bars
+    if (slideId === 13) {
+      slide.querySelectorAll('.latency-panel').forEach(el => {
+        setTimeout(() => el.classList.add('visible'), parseInt(el.dataset.delay || 0) + 100);
+      });
+      // Animate latency number count-up
+      setTimeout(() => {
+        const el = document.getElementById('latencyNum');
+        if (!el) return;
+        let start = 0; const end = 1000;
+        const dur = 1200;
+        const step = (end / dur) * 16;
+        const timer = setInterval(() => {
+          start = Math.min(start + step, end);
+          el.textContent = Math.round(start);
+          if (start >= end) clearInterval(timer);
+        }, 16);
+      }, 400);
+      // Latency bars
+      setTimeout(() => {
+        [['lb1', '100%'], ['lb2', '27%'], ['lb3', '2.3%'], ['lb4', '33%']].forEach(([id, w]) => {
+          const el = document.getElementById(id);
+          if (el) el.style.width = w;
+        });
+      }, 500);
+      // Pipeline steps
+      slide.querySelectorAll('.pipe-step').forEach(el => {
+        setTimeout(() => el.classList.add('visible'), parseInt(el.dataset.delay || 0));
+      });
+      slide.querySelectorAll('.pipe-arrow').forEach(el => {
+        setTimeout(() => el.classList.add('visible'), parseInt(el.dataset.delay || 0));
+      });
+    }
+
+    // Rings on conclusion (slide 14)
+    if (slideId === 14) {
+      const vals = [95, 88, 92, 85];
+      vals.forEach((v, i) => {
+        setTimeout(() => {
+          const ring = document.getElementById(`ring${i+1}`);
+          if (ring) {
+            const offset = 220 - (220 * v / 100);
+            ring.style.strokeDashoffset = offset;
+          }
+        }, 600 + i * 150);
+      });
+    }
+  }
+
+  function resetAnimations(slideId) {
+    const slide = document.getElementById(`slide-${slideId}`);
+    if (!slide) return;
+    slide.querySelectorAll('.problem-card, .feature-card, .concept-box, .plus-sign, .equals-wrap, .ux-step, .ux-arrow, .chat-bubble, .quiz-opt, .feedback-item, .revenue-card, .tech-card, .game-card, .latency-panel, .pipe-step, .pipe-arrow').forEach(el => {
+      el.classList.remove('visible');
+    });
+    document.querySelectorAll('#compTableBody td').forEach(td => td.classList.remove('visible'));
+    if (slideId === 8) {
+      ['bar-a','bar-na','bar-ta'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.height = '0%';
+      });
+    }
+    if (slideId === 12) {
+      ['sb1','sb2','sb3'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.width = '0%';
+      });
+    }
+    if (slideId === 13) {
+      ['lb1','lb2','lb3','lb4'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.width = '0%';
+      });
+      const ln = document.getElementById('latencyNum');
+      if (ln) ln.textContent = '0';
+    }
+    if (slideId === 14) {
+      [1,2,3,4].forEach(i => {
+        const r = document.getElementById(`ring${i}`);
+        if (r) r.style.strokeDashoffset = '220';
+      });
+    }
+  }
+
+  function goToSlide(n) {
+    if (n === current || animating || n < 1 || n > totalSlides) return;
+    animating = true;
+    const prev = document.getElementById(`slide-${current}`);
+    const next = document.getElementById(`slide-${n}`);
+    resetAnimations(current);
+    prev.classList.add('exit');
+    prev.classList.remove('active');
+    next.style.transform = n > current ? 'translateX(100%)' : 'translateX(-100%)';
+    next.style.opacity = '0';
+    next.style.transition = 'none';
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        next.style.transition = '';
+        next.classList.add('active');
+        next.style.transform = '';
+        next.style.opacity = '';
+        setTimeout(() => {
+          prev.classList.remove('exit');
+          animating = false;
+        }, 650);
+      });
+    });
+    current = n;
+    updateNav();
+    setTimeout(() => triggerAnimations(n), 300);
+  }
+
+  function changeSlide(dir) {
+    goToSlide(current + dir);
+  }
+
+  // Keyboard navigation
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') changeSlide(1);
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') changeSlide(-1);
+  });
+
+  // Touch support
+  let touchStartX = 0;
+  document.addEventListener('touchstart', e => touchStartX = e.touches[0].clientX, {passive: true});
+  document.addEventListener('touchend', e => {
+    const diff = touchStartX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 60) changeSlide(diff > 0 ? 1 : -1);
+  });
+
+
+  // Language switching
+  let lang = 'ko';
+  
+  function setLang(l) {
+    lang = l;
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', 
+      (l === 'ko' && b.textContent.trim() === '한국어') || (l === 'ja' && b.textContent.trim() === '日本語')
+    ));
+    applyLang();
+  }
+
+  function applyLang() {
+    document.querySelectorAll('[data-ko][data-ja]').forEach(el => {
+      const txt = el.getAttribute('data-' + lang);
+      if (txt !== null) el.innerHTML = txt;
+    });
+  }
+
+  // Apply language on init
+  applyLang();
+
+  // Init
+  updateNav();
+  triggerAnimations(1);
+</script>
+</body>
+</html>

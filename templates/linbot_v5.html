@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>LinguaLine</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Noto+Sans+JP:wght@300;400;500;700;900&family=DM+Serif+Display:ital@0;1&family=Playfair+Display:ital,wght@0,700;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --g:#06C755;--gd:#04A344;--gl:#E8FBF0;
+  --bk:#0c0c0c;--ch:#1a1a1a;--gr:#777;
+  --lt:#F4F4F2;--wh:#fff;
+  --or:#FF6B35;--pu:#7C3AED;--gold:#C9940A;--bl:#3B82F6;--rd:#EF4444;
+  --page-h: 100vh;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bk);color:var(--wh)}
+body.jp{font-family:'Noto Sans JP',sans-serif}
+
+/* ── LANG BAR ── */
+#lang-bar{
+  position:fixed;top:0;left:0;right:0;z-index:500;
+  height:52px;
+  background:rgba(12,12,12,.92);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid rgba(255,255,255,.07);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 32px;
+}
+.logo-top{font-family:'DM Serif Display',serif;font-size:1.35rem;color:var(--g);letter-spacing:-.5px}
+.logo-top span{color:rgba(255,255,255,.5)}
+.lang-btns{display:flex;gap:4px;background:rgba(255,255,255,.06);border-radius:20px;padding:3px}
+.lb{padding:5px 18px;border-radius:16px;font-size:.78rem;font-weight:700;cursor:pointer;transition:all .22s;border:none;background:transparent;color:rgba(255,255,255,.45);font-family:inherit}
+.lb.on{background:var(--g);color:white}
+
+/* ── SLIDER WRAPPER ── */
+#slider{
+  position:fixed;top:52px;left:0;right:0;bottom:48px;
+  overflow:hidden;
+}
+.slides{
+  display:flex;
+  height:100%;
+  transition:transform .55s cubic-bezier(.77,0,.175,1);
+}
+.slide{
+  min-width:100%;
+  height:100%;
+  overflow-y:auto;
+  overflow-x:hidden;
+  scroll-behavior:smooth;
+}
+.slide::-webkit-scrollbar{width:4px}
+.slide::-webkit-scrollbar-track{background:transparent}
+.slide::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px}
+
+/* ── PAGE NAV BAR ── */
+#page-nav{
+  position:fixed;bottom:0;left:0;right:0;z-index:500;
+  height:48px;
+  background:rgba(12,12,12,.95);
+  backdrop-filter:blur(14px);
+  border-top:1px solid rgba(255,255,255,.07);
+  display:flex;align-items:center;justify-content:center;
+  gap:0;
+}
+.nav-btn{
+  width:44px;height:44px;
+  border:none;background:transparent;
+  color:rgba(255,255,255,.4);
+  font-size:1rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:color .2s;border-radius:8px;
+}
+.nav-btn:hover:not(:disabled){color:white;background:rgba(255,255,255,.08)}
+.nav-btn:disabled{opacity:.2;cursor:default}
+.page-dots{display:flex;gap:7px;align-items:center;margin:0 16px}
+.dot{
+  width:7px;height:7px;border-radius:50%;
+  background:rgba(255,255,255,.22);
+  cursor:pointer;transition:all .25s;
+}
+.dot.on{background:var(--g);transform:scale(1.3)}
+.page-counter{
+  font-family:'Space Mono',monospace;
+  font-size:.72rem;color:rgba(255,255,255,.35);
+  margin-left:12px;min-width:44px;
+}
+
+/* ── ARROW NAV (sides) ── */
+.arr{
+  position:fixed;top:50%;transform:translateY(-50%);z-index:400;
+  width:40px;height:70px;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.1rem;color:rgba(255,255,255,.4);
+  cursor:pointer;transition:all .2s;
+}
+.arr:hover{background:rgba(255,255,255,.12);color:white}
+.arr.left{left:10px}
+.arr.right{right:10px}
+.arr:disabled{opacity:.15;cursor:default}
+
+/* ═══════════════════════════
+   SLIDE LAYOUTS
+═══════════════════════════ */
+
+/* ── SLIDE 1: COVER ── */
+.s-cover{
+  background:var(--bk);
+  min-height:100%;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:40px 60px;
+  position:relative;
+  overflow:hidden;
+  text-align:center;
+}
+.cover-glow{position:absolute;border-radius:50%;filter:blur(100px);pointer-events:none}
+.cg1{width:600px;height:600px;background:rgba(6,199,85,.1);top:-200px;right:-100px}
+.cg2{width:400px;height:400px;background:rgba(255,107,53,.06);bottom:-100px;left:-50px}
+.cover-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(6,199,85,.14);border:1px solid rgba(6,199,85,.3);
+  color:var(--g);padding:6px 16px;border-radius:20px;
+  font-size:.75rem;font-weight:700;letter-spacing:.5px;
+  margin-bottom:28px;position:relative;
+}
+.bdot{width:6px;height:6px;background:var(--g);border-radius:50%;animation:blink 2s infinite;flex-shrink:0}
+@keyframes blink{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.6)}}
+.cover-title{font-family:'DM Serif Display',serif;font-size:clamp(2.8rem,5vw,5rem);color:white;line-height:1.05;margin-bottom:20px}
+.cover-title em{font-style:italic;color:var(--g)}
+.cover-desc{font-size:1rem;color:rgba(255,255,255,.5);line-height:1.9;max-width:560px;margin:0 auto 36px}
+.cover-menu{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;max-width:780px;width:100%;margin:0 auto 36px}
+.cm-card{
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:16px;padding:20px 14px;
+  cursor:pointer;transition:all .25s;
+  text-align:center;
+}
+.cm-card:hover{background:rgba(6,199,85,.1);border-color:rgba(6,199,85,.4);transform:translateY(-3px)}
+.cm-ic{font-size:1.8rem;margin-bottom:10px}
+.cm-num{font-family:'Space Mono',monospace;font-size:.6rem;color:var(--g);font-weight:700;margin-bottom:5px;letter-spacing:.5px}
+.cm-name{font-size:.8rem;font-weight:700;color:white;line-height:1.3}
+.cover-stats{display:flex;gap:40px;justify-content:center;padding-top:28px;border-top:1px solid rgba(255,255,255,.07)}
+.cstat-n{font-family:'Space Mono',monospace;font-size:1.5rem;font-weight:700;color:var(--g)}
+.cstat-l{font-size:.68rem;color:rgba(255,255,255,.32);margin-top:3px}
+
+/* ── SLIDE: FEATURE BASE ── */
+.s-feat{
+  min-height:100%;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:0;
+}
+.feat-left{
+  padding:60px 52px 52px;
+  display:flex;flex-direction:column;
+  justify-content:center;
+  position:relative;
+}
+.feat-right{
+  display:flex;align-items:center;justify-content:center;
+  padding:40px 40px;
+  position:relative;
+}
+
+/* color themes per slide */
+.s-chat .feat-left{background:var(--bk)}
+.s-chat .feat-right{background:#0d1a0f}
+.s-learn .feat-left{background:#060d1f}
+.s-learn .feat-right{background:#080f1a}
+.s-match .feat-left{background:#110a1f}
+.s-match .feat-right{background:#0e0818}
+.s-story .feat-left{background:#120c00}
+.s-story .feat-right{background:#0e0a00}
+
+.slide-num-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:5px 14px;border-radius:20px;
+  font-size:.7rem;font-weight:700;letter-spacing:.5px;
+  margin-bottom:18px;width:fit-content;
+}
+.s-chat .slide-num-badge{background:rgba(6,199,85,.14);color:var(--g);border:1px solid rgba(6,199,85,.3)}
+.s-learn .slide-num-badge{background:rgba(59,130,246,.14);color:#60a5fa;border:1px solid rgba(59,130,246,.3)}
+.s-match .slide-num-badge{background:rgba(124,58,237,.14);color:#a78bfa;border:1px solid rgba(124,58,237,.3)}
+.s-story .slide-num-badge{background:rgba(201,148,10,.14);color:#fbbf24;border:1px solid rgba(201,148,10,.3)}
+
+.feat-title{font-family:'DM Serif Display',serif;font-size:clamp(1.8rem,2.8vw,2.6rem);color:white;line-height:1.12;margin-bottom:14px}
+.feat-title em{font-style:italic}
+.s-chat .feat-title em{color:var(--g)}
+.s-learn .feat-title em{color:#60a5fa}
+.s-match .feat-title em{color:#a78bfa}
+.s-story .feat-title em{color:#fbbf24}
+
+.feat-desc{font-size:.88rem;color:rgba(255,255,255,.48);line-height:1.85;margin-bottom:26px;max-width:440px}
+.feat-points{display:flex;flex-direction:column;gap:10px}
+.fp{
+  display:flex;align-items:flex-start;gap:12px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:13px;padding:14px;
+  transition:all .2s;
+}
+.fp:hover{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.12)}
+.fp-ic{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0}
+.s-chat .fp-ic{background:rgba(6,199,85,.15)}
+.s-learn .fp-ic{background:rgba(59,130,246,.15)}
+.s-match .fp-ic{background:rgba(124,58,237,.15)}
+.s-story .fp-ic{background:rgba(201,148,10,.15)}
+.fp h4{font-size:.8rem;font-weight:700;color:rgba(255,255,255,.9);margin-bottom:3px}
+.fp p{font-size:.73rem;color:rgba(255,255,255,.4);line-height:1.6;margin:0}
+
+/* ── PHONE SHELL ── */
+.phone{
+  width:258px;
+  background:#1a1a1c;
+  border-radius:36px;
+  border:2px solid #2c2c2e;
+  overflow:hidden;
+  box-shadow:0 32px 64px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.04);
+  flex-shrink:0;
+}
+.ph-notch{height:22px;background:#1a1a1c;display:flex;align-items:center;justify-content:center}
+.ph-notch::after{content:'';width:64px;height:12px;background:#111;border-radius:0 0 8px 8px}
+
+/* LINE UI components */
+.l-hdr{background:#fff;padding:9px 12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #f0f0f0}
+.l-bk{color:var(--g);font-size:.75rem;margin-right:auto}
+.l-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:white;font-weight:700;flex-shrink:0}
+.l-nm{font-size:.74rem;font-weight:700;color:#111}
+.l-st{font-size:.58rem;color:var(--g)}
+.l-body{background:#e8e8e8;padding:9px 8px;display:flex;flex-direction:column;gap:7px}
+.r{display:flex;gap:6px;align-items:flex-end}
+.r.rt{flex-direction:row-reverse}
+.av{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;color:white;font-weight:700;flex-shrink:0}
+.b{max-width:168px;padding:6px 9px;border-radius:11px;font-size:.63rem;line-height:1.5}
+.b-t{background:white;color:#111;border-bottom-left-radius:3px}
+.b-m{background:var(--g);color:white;border-bottom-right-radius:3px}
+.b-bot{background:#fff9e6;color:#111;border:1px solid #fcd34d;border-bottom-left-radius:3px}
+.b-rd{background:#fef2f2;color:#dc2626;border:1.5px solid #fca5a5;border-bottom-left-radius:3px}
+.rb{font-size:.59rem;color:var(--g);font-weight:700;margin-bottom:1px}
+.rp{font-size:.56rem;color:#888;margin-top:2px;font-family:'Space Mono',monospace}
+.ts{text-align:center;font-size:.54rem;color:#aaa;margin:1px 0}
+.l-inp{background:white;padding:6px 9px;display:flex;align-items:center;gap:6px;border-top:1px solid #eee}
+.l-ip{flex:1;background:#f5f5f5;border-radius:16px;padding:5px 10px;font-size:.62rem;color:#aaa}
+.l-sd{width:24px;height:24px;background:var(--g);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;color:white}
+.l-nav{background:white;border-top:1px solid #eee;display:flex;padding:4px 0 8px}
+.ln-i{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;font-size:.49rem;color:#bbb}
+.ln-i.on{color:var(--g)}
+.ln-ic{font-size:.9rem}
+
+/* ── SLIDE 3 MATCH SUBPAGES ── */
+.match-content{
+  width:100%;
+}
+.match-tabs{display:flex;gap:6px;margin-bottom:22px;flex-wrap:wrap}
+.mt{
+  padding:7px 16px;border-radius:20px;font-size:.75rem;font-weight:600;
+  border:1px solid rgba(124,58,237,.3);color:#a78bfa;
+  background:transparent;cursor:pointer;transition:all .2s;
+  font-family:inherit;
+}
+.mt.on{background:#7C3AED;border-color:#7C3AED;color:white}
+.mt:hover:not(.on){border-color:#7C3AED;background:rgba(124,58,237,.15)}
+.mtab-panel{display:none}
+.mtab-panel.on{display:block;animation:fi .3s ease}
+@keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── SLIDE: STORY EXTRA ── */
+.story-extra{
+  min-height:100%;
+  background:#120c00;
+  padding:52px 60px;
+}
+.process-5{
+  display:grid;grid-template-columns:repeat(5,1fr);
+  gap:3px;margin-top:36px;border-radius:14px;overflow:hidden;
+}
+.ps{
+  background:#1a1200;padding:22px 16px;position:relative;
+  border-top:2px solid transparent;transition:all .2s;
+}
+.ps:hover{border-color:var(--gold)}
+.ps:not(:last-child)::after{content:'→';position:absolute;right:-8px;top:50%;transform:translateY(-50%);color:var(--gold);font-size:.85rem;z-index:2}
+.ps-n{font-family:'Space Mono',monospace;font-size:.6rem;color:var(--gold);font-weight:700;margin-bottom:8px}
+.ps-ic{font-size:1.5rem;margin-bottom:8px}
+.ps h4{font-size:.78rem;font-weight:700;color:white;margin-bottom:5px}
+.ps p{font-size:.7rem;color:rgba(255,255,255,.38);line-height:1.6}
+
+.mag-card{background:white;border-radius:18px;overflow:hidden;box-shadow:0 16px 40px rgba(0,0,0,.3);max-width:340px}
+.mag-cover{background:linear-gradient(160deg,#1a1209,#2d1f0a);height:160px;position:relative;display:flex;flex-direction:column;justify-content:flex-end}
+.mag-cat-b{position:absolute;top:12px;left:12px;background:var(--gold);color:white;font-size:.56rem;font-weight:700;padding:2px 8px;border-radius:3px;letter-spacing:.5px;text-transform:uppercase}
+.mag-cv-t{position:relative;padding:12px 14px}
+.mag-tit{font-family:'Playfair Display',serif;font-size:.92rem;font-weight:700;color:white;line-height:1.3;margin-bottom:2px}
+.mag-m{font-size:.54rem;color:rgba(255,255,255,.4)}
+.mag-b{padding:14px}
+.mag-at{display:flex;align-items:center;gap:7px;margin-bottom:10px;padding-bottom:9px;border-bottom:1px solid #f0f0f0}
+.m-av{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,var(--g),var(--bl));display:flex;align-items:center;justify-content:center;font-size:9px;color:white;font-weight:700}
+.m-an{font-size:.68rem;font-weight:700;color:#111}
+.m-am{font-size:.57rem;color:#888}
+.m-ai{background:var(--gl);color:var(--g);font-size:.56rem;font-weight:700;padding:2px 6px;border-radius:3px;margin-left:auto}
+.mag-txt{font-size:.69rem;color:#444;line-height:1.78;margin-bottom:10px}
+.mag-txt em{font-style:italic;color:#222;font-family:'Playfair Display',serif}
+.mag-loc{display:flex;align-items:center;gap:5px;background:#f8f8f8;border-radius:6px;padding:6px 8px;margin-bottom:8px}
+.ml-t{font-size:.61rem;font-weight:700;color:#111}
+.ml-m{font-size:.55rem;color:#888}
+.ml-l{font-size:.59rem;color:var(--g);font-weight:700;margin-left:auto}
+.mag-tags{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:10px}
+.mtg{background:#f0f0f0;color:#555;font-size:.59rem;padding:2px 6px;border-radius:3px}
+.mag-acts{display:flex;gap:5px;padding-top:9px;border-top:1px solid #f0f0f0}
+.ma{flex:1;padding:7px;border-radius:6px;font-size:.61rem;font-weight:700;border:none;cursor:pointer;font-family:inherit;text-align:center}
+.ma-pub{background:var(--g);color:white}
+.ma-prv{background:#f0f0f0;color:#555}
+.ma-del{background:#fee2e2;color:#dc2626}
+
+/* Trust bars */
+.trust-box{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:18px}
+.tr{display:flex;align-items:center;gap:9px;margin-bottom:7px}
+.trl{font-size:.69rem;color:rgba(255,255,255,.42);width:48px;flex-shrink:0}
+.trb{flex:1;height:4px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden}
+.trf{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--gold),var(--or))}
+.trs{font-family:'Space Mono',monospace;font-size:.62rem;color:var(--gold);font-weight:700;width:24px;text-align:right}
+
+/* ── PRICING SLIDE ── */
+.s-price{
+  min-height:100%;
+  background:var(--lt);
+  padding:52px 60px;
+  color:var(--bk);
+}
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:36px}
+.pc{background:white;border-radius:20px;padding:28px 24px;border:2px solid transparent;transition:all .2s;position:relative}
+.pc:hover{transform:translateY(-3px)}
+.pc.hot{background:var(--bk);border-color:var(--g);color:white}
+.pc-badge{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--g);color:white;padding:3px 14px;border-radius:14px;font-size:.65rem;font-weight:700;white-space:nowrap}
+.pc-n{font-size:.7rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--g);margin-bottom:10px}
+.pc-p{font-family:'DM Serif Display',serif;font-size:2.3rem;color:var(--bk);line-height:1}
+.pc.hot .pc-p{color:white}
+.pc-p sup{font-size:.9rem;font-family:'Noto Sans KR',sans-serif}
+.pc-p sub{font-size:.76rem;font-family:'Noto Sans KR',sans-serif;color:var(--gr)}
+.pc.hot .pc-p sub{color:rgba(255,255,255,.35)}
+.pc-per{font-size:.66rem;color:var(--gr);margin:3px 0 16px}
+.pc.hot .pc-per{color:rgba(255,255,255,.32)}
+.pc-div{height:1px;background:rgba(0,0,0,.07);margin-bottom:16px}
+.pc.hot .pc-div{background:rgba(255,255,255,.1)}
+.pc-fs{display:flex;flex-direction:column;gap:8px;margin-bottom:22px}
+.pf{display:flex;align-items:flex-start;gap:7px;font-size:.75rem;color:#333;line-height:1.4}
+.pc.hot .pf{color:rgba(255,255,255,.75)}
+.ok{color:var(--g);font-weight:700;flex-shrink:0;margin-top:1px}
+.no{color:#ccc;flex-shrink:0;margin-top:1px}
+.pc-btn{width:100%;padding:11px;border-radius:10px;font-weight:700;font-size:.82rem;font-family:inherit;cursor:pointer;border:2px solid var(--g);background:transparent;color:var(--g);transition:all .2s}
+.pc-btn:hover{background:var(--g);color:white}
+.pc.hot .pc-btn{background:var(--g);color:white}
+.pc.hot .pc-btn:hover{background:var(--gd)}
+
+/* ── ROADMAP SLIDE ── */
+.s-road{
+  min-height:100%;background:#060606;padding:52px 60px;
+}
+.s-road .stag{color:var(--g)}
+.road-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:36px;position:relative}
+.road-grid::before{content:'';position:absolute;top:22px;left:calc(16.6% + 9px);right:calc(16.6% + 9px);height:2px;background:linear-gradient(90deg,var(--g),var(--or))}
+.rc{background:#111;border-radius:16px;padding:24px;border:1px solid #1e1e1e}
+.rc.on{border-color:var(--g);background:rgba(6,199,85,.06)}
+.rdot{width:15px;height:15px;border-radius:50%;background:#333;border:2px solid #060606;box-shadow:0 0 0 2px #333;margin-bottom:14px}
+.rc.on .rdot{background:var(--g);box-shadow:0 0 0 2px var(--g)}
+.r-per{font-size:.64rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--g);margin-bottom:4px}
+.rc h3{font-size:.88rem;font-weight:700;color:white;margin-bottom:8px}
+.r-items{display:flex;flex-direction:column;gap:4px}
+.ri{font-size:.72rem;color:rgba(255,255,255,.42);display:flex;gap:4px}
+.ri::before{content:'·';color:var(--g);font-weight:700}
+
+/* SECTION UTILS */
+.stag{font-size:.69rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px}
+.stitle{font-family:'DM Serif Display',serif;line-height:1.15;margin-bottom:12px}
+.ssub{font-size:.9rem;line-height:1.85}
+
+/* ── ARCH DIAGRAM (match safe) ── */
+.arch{display:flex;flex-direction:column;align-items:center;gap:0;margin-top:14px}
+.arch-row{display:flex;align-items:center;width:100%;gap:0}
+.an{
+  flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);
+  border-radius:10px;padding:12px 10px;text-align:center;
+  transition:all .2s;cursor:default;
+}
+.an:hover{background:rgba(255,255,255,.07)}
+.an.red{border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.05)}
+.an.gold{border-color:rgba(212,160,23,.3);background:rgba(212,160,23,.04)}
+.an-ic{font-size:1.2rem;margin-bottom:4px}
+.an-n{font-size:.66rem;font-weight:700;color:white;margin-bottom:2px}
+.an-d{font-size:.57rem;color:rgba(255,255,255,.32);line-height:1.4}
+.a-arr{display:flex;align-items:center;justify-content:center;padding:0 6px;color:var(--g);font-size:.9rem;flex-shrink:0}
+.a-down{display:flex;justify-content:center;height:24px;align-items:center;color:var(--g);font-size:1rem;width:100%}
+.a-group{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;width:100%}
+.a-label{font-size:.59rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.22);text-align:center;width:100%;margin-bottom:8px}
+
+/* action tags */
+.act-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.at{padding:2px 7px;border-radius:3px;font-size:.59rem;font-weight:700}
+.at-g{background:rgba(6,199,85,.15);color:var(--g)}
+.at-y{background:rgba(251,191,36,.15);color:#fbbf24}
+.at-o{background:rgba(255,107,53,.15);color:var(--or)}
+.at-r{background:rgba(239,68,68,.15);color:var(--rd)}
+
+/* ── SWIPE HINT ── */
+.swipe-hint{
+  position:absolute;bottom:14px;left:50%;transform:translateX(-50%);
+  font-size:.62rem;color:rgba(255,255,255,.2);
+  display:flex;align-items:center;gap:5px;
+  pointer-events:none;
+  animation:fade-hint 3s ease 1.5s forwards;
+  opacity:1;
+}
+@keyframes fade-hint{0%{opacity:1}100%{opacity:0}}
+
+/* ── RESPONSIVE ── */
+@media(max-width:860px){
+  .s-feat{grid-template-columns:1fr;overflow-y:auto}
+  .feat-right{display:none}
+  .feat-left{padding:40px 28px}
+  .cover-menu{grid-template-columns:repeat(2,1fr)}
+  .process-5{grid-template-columns:1fr 1fr}
+  .pgrid,.road-grid{grid-template-columns:1fr}
+  .road-grid::before{display:none}
+  #lang-bar{padding:0 16px}
+  .arr{display:none}
+  .s-story .feat-right,.s-story.extra{padding:28px}
+  .story-extra{padding:36px 28px}
+}
+</style>
+</head>
+<body>
+
+<!-- LANG BAR -->
+<div id="lang-bar">
+  <div style="display:flex; align-items:center; gap: 15px;">
+    <div class="logo-top">Lingua<span>Line</span></div>
+    <a href="/edu" style="background: rgba(0, 201, 167, 0.15); color: #00C9A7; border: 1px solid rgba(0, 201, 167, 0.4); padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-decoration: none; font-family: 'Space Mono', monospace; transition: background 0.2s;" onmouseover="this.style.background='rgba(0, 201, 167, 0.3)'" onmouseout="this.style.background='rgba(0, 201, 167, 0.15)'">EDU SKILL</a>
+  </div>
+  <div class="lang-btns">
+    <button class="lb on" onclick="setLang('ko')">한국어</button>
+    <button class="lb" onclick="setLang('ja')">日本語</button>
+  </div>
+</div>
+
+<!-- SIDE ARROWS -->
+<button class="arr left" id="arr-l" onclick="move(-1)">‹</button>
+<button class="arr right" id="arr-r" onclick="move(1)">›</button>
+
+<!-- SLIDES -->
+<div id="slider">
+<div class="slides" id="slides-wrap">
+
+<!-- ══════════════════════════════
+  SLIDE 0: COVER
+══════════════════════════════ -->
+<div class="slide">
+<div class="s-cover">
+  <div class="cover-glow cg1"></div>
+  <div class="cover-glow cg2"></div>
+  <div class="cover-badge"><div class="bdot"></div><span data-ko="LINE × Kakao 언어교환 플랫폼" data-ja="LINE × Kakao 言語交換プラットフォーム"></span></div>
+  <h1 class="cover-title">
+    <span data-ko="대화하면서" data-ja="話しながら"></span><br>
+    <em><span data-ko="자연스럽게" data-ja="自然に"></span></em><br>
+    <span data-ko="배우는 일본어" data-ja="学べる韓国語"></span>
+  </h1>
+  <p class="cover-desc">
+    <span data-ko="AI 번역채팅 · AI 언어선생님 · AI 매칭서비스 · AI 스토리<br>4가지 AI 서비스가 하나의 LINE 봇 안에서." data-ja="AI翻訳チャット・AI語学先生・AIマッチングサービス・AIストーリー<br>4つのAIサービスが1つのLINEボットで。"></span>
+  </p>
+  <div class="cover-menu">
+    <div class="cm-card" onclick="goTo(1)">
+      <div class="cm-ic">💬</div>
+      <div class="cm-num">01</div>
+      <div class="cm-name"><span data-ko="AI 번역채팅" data-ja="AI翻訳チャット"></span></div>
+    </div>
+    <div class="cm-card" onclick="goTo(2)">
+      <div class="cm-ic">📚</div>
+      <div class="cm-num">02</div>
+      <div class="cm-name"><span data-ko="AI 언어선생님" data-ja="AI語学先生"></span></div>
+    </div>
+    <div class="cm-card" onclick="goTo(3)">
+      <div class="cm-ic">🤝</div>
+      <div class="cm-num">03</div>
+      <div class="cm-name"><span data-ko="AI 매칭서비스" data-ja="AIマッチングサービス"></span></div>
+    </div>
+    <div class="cm-card" onclick="goTo(5)">
+      <div class="cm-ic">📖</div>
+      <div class="cm-num">04</div>
+      <div class="cm-name"><span data-ko="AI 스토리" data-ja="AIストーリー"></span></div>
+    </div>
+  </div>
+  <div class="cover-stats">
+    <div><div class="cstat-n">GPT-4o</div><div class="cstat-l"><span data-ko="번역 + 스토리 엔진" data-ja="翻訳+ストーリーエンジン"></span></div></div>
+    <div><div class="cstat-n">5단계</div><div class="cstat-l"><span data-ko="메시지 안전 검사" data-ja="メッセージ安全検査"></span></div></div>
+    <div><div class="cstat-n">0개</div><div class="cstat-l"><span data-ko="연락처 노출 없음" data-ja="連絡先露出なし"></span></div></div>
+    <div><div class="cstat-n">₩4,900</div><div class="cstat-l"><span data-ko="월 스탠다드" data-ja="月スタンダード"></span></div></div>
+  </div>
+  <div class="swipe-hint">← <span data-ko="좌우로 넘기거나 아래 화살표를 누르세요" data-ja="左右にスワイプまたは矢印ボタンで移動"></span> →</div>
+</div>
+</div>
+
+<!-- ══════════════════════════════
+  SLIDE 1: AI 번역채팅
+══════════════════════════════ -->
+<div class="slide">
+<div class="s-feat s-chat">
+  <div class="feat-left">
+    <div class="slide-num-badge">01 · <span data-ko="AI 번역채팅" data-ja="AI翻訳チャット"></span></div>
+    <h2 class="feat-title">
+      <span data-ko="채팅하는 동안" data-ja="チャット中に"></span><br>
+      <em><span data-ko="실시간 번역" data-ja="リアルタイム翻訳"></span></em><br>
+      <span data-ko="+ 발음 표기" data-ja="＋発音表記"></span>
+    </h2>
+    <p class="feat-desc">
+      <span data-ko="GPT-4o가 구어체·인터넷 표현까지 정확하게 번역하고, 히라가나와 한글 발음을 동시에 표기합니다. LINE 기본 번역과는 차원이 다른 품질을 경험하세요." data-ja="GPT-4oが口語体・ネット表現まで正確に翻訳し、ひらがなとカタカナ読みを同時に表示します。LINE標準翻訳とは次元が違う品質を体験してください。"></span>
+    </p>
+    <div class="feat-points">
+      <div class="fp"><div class="fp-ic">🔤</div><div><h4 data-ko="GPT-4o 고품질 번역" data-ja="GPT-4o 高品質翻訳"></h4><p><span data-ko="やばい, それな 등 구어체·인터넷 표현 정확 처리. 맥락을 이해한 자연스러운 번역." data-ja="やばい、それな等の口語体・ネット表現を正確に処理。文脈を理解した自然な翻訳。"></span></p></div></div>
+      <div class="fp"><div class="fp-ic">🔊</div><div><h4 data-ko="히라가나 + 한글 발음 동시 표기" data-ja="ひらがな＋韓国語読み 同時表記"></h4><p><span data-ko="今日は → きょうは / 쿄오와. 한자를 두 가지 방식으로 읽을 수 있습니다." data-ja="今日は → きょうは / キョーワ。漢字を2つの方法で読めます。"></span></p></div></div>
+      <div class="fp"><div class="fp-ic">↔️</div><div><h4 data-ko="양방향 자동 전송" data-ja="双方向自動送信"></h4><p><span data-ko="한국어 입력 → 일본어 자동 번역 전송. 대화 흐름이 끊기지 않습니다." data-ja="韓国語入力→日本語自動翻訳送信。会話の流れが途切れません。"></span></p></div></div>
+      <div class="fp"><div class="fp-ic">🔍</div><div><h4 data-ko="표현 설명 /explain" data-ja="表現説明 /explain"></h4><p><span data-ko="/explain それな → '맞아 그거. 상대 의견에 동의할 때 쓰는 인터넷 표현' 즉시 설명." data-ja="/explain それな → '맞아 그거。相手の意見に同意するネット表現' を即座に説明。"></span></p></div></div>
+    </div>
+  </div>
+  <div class="feat-right">
+    <div class="phone">
+      <div class="ph-notch"></div>
+      <div class="l-hdr"><span class="l-bk">＜</span><div class="l-av" style="background:var(--g)">🤖</div><div><div class="l-nm">LinguaLine Bot</div><div class="l-st">🛡️ <span data-ko="중계보호 ON · 번역 ON" data-ja="中継保護ON・翻訳ON"></span></div></div></div>
+      <div class="l-body" style="min-height:310px">
+        <div style="background:rgba(6,199,85,.1);border:1px solid rgba(6,199,85,.2);border-radius:6px;padding:5px 8px;font-size:.57rem;color:var(--g);text-align:center;font-weight:600"><span data-ko="🛡️ 중계 보호 ON · 연락처 비공개" data-ja="🛡️ 中継保護ON・連絡先非公開"></span></div>
+        <div class="ts"><span data-ko="오후 3:20" data-ja="午後3:20"></span></div>
+        <div class="r"><div class="av" style="background:#7C3AED">陽</div><div class="b b-t">今日マジやばくない？😅</div></div>
+        <div class="r"><div class="av" style="background:#fbbf24">🤖</div><div><div style="font-size:.54rem;color:#999;margin-bottom:1px;font-weight:600">LINGUABOT</div><div class="b b-bot"><div class="rb"><span data-ko="오늘 진짜 심하지 않아? 😅" data-ja="今日マジでヤバくない？😅"></span></div><div class="rp">きょう まじ やばくない？<br><span data-ko="쿄오 마지 야바쿠나이?" data-ja="キョーマジヤバクナイ?"></span></div><div style="font-size:.55rem;color:#888;margin-top:2px"><span data-ko="💡 やばい = 대단한/심한" data-ja="💡 やばい = すごい/ひどい"></span></div></div></div></div>
+        <div class="r rt"><div class="b b-m"><span data-ko="그러게, 너무 더워 ☀️" data-ja="そうだね、すごく暑い ☀️"></span></div></div>
+        <div class="r"><div class="av" style="background:#fbbf24">🤖</div><div class="b b-bot" style="font-size:.6rem"><div style="color:#555"><span data-ko="そうだね、すごく暑い☀️" data-ja="맞아, 너무 더워☀️"></span></div><div class="rp"><span data-ko="✅ 검사 통과 → 전송됨" data-ja="✅ 検査通過 → 送信済み"></span></div></div></div>
+        <div class="r"><div class="av" style="background:#7C3AED">陽</div><div class="b b-t">それな〜 🥵</div></div>
+        <div class="r"><div class="av" style="background:#fbbf24">🤖</div><div class="b b-bot"><div class="rb"><span data-ko="맞아 정말〜 🥵" data-ja="そうそう〜 🥵"></span></div><div style="font-size:.55rem;color:#888;margin-top:2px"><span data-ko="💡 それな = 동의 표현" data-ja="💡 それな = 同意表現"></span></div></div></div>
+      </div>
+      <div class="l-inp"><div class="l-ip"><span data-ko="메시지 입력..." data-ja="メッセージを入力..."></span></div><div class="l-sd">↑</div></div>
+      <div class="l-nav">
+        <div class="ln-i on"><div class="ln-ic">💬</div><span data-ko="번역" data-ja="翻訳"></span></div>
+        <div class="ln-i"><div class="ln-ic">📚</div><span data-ko="학습" data-ja="学習"></span></div>
+        <div class="ln-i"><div class="ln-ic">🤝</div><span data-ko="매칭" data-ja="マッチング"></span></div>
+        <div class="ln-i"><div class="ln-ic">📖</div><span data-ko="스토리" data-ja="ストーリー"></span></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════
+  SLIDE 2: AI 언어선생님
+══════════════════════════════ -->
+<div class="slide">
+<div class="s-feat s-learn">
+  <div class="feat-left">
+    <div class="slide-num-badge">02 · <span data-ko="AI 언어선생님" data-ja="AI語学先生"></span></div>
+    <h2 class="feat-title">
+      <span data-ko="대화 중 단어가" data-ja="会話中の単語が"></span><br>
+      <em><span data-ko="퀴즈" data-ja="クイズ"></span></em><br>
+      <span data-ko="로 자동 변환" data-ja="に自動変換"></span>
+    </h2>
+    <p class="feat-desc">
+      <span data-ko="방금 나눈 대화에서 단어·문장 퀴즈를 자동으로 만들어드립니다. Duolingo처럼 게임하듯 배우고, 포인트를 쌓으면 무료 번역 횟수가 늘어납니다." data-ja="今交わした会話から単語・文章クイズを自動生成します。Duolingoのようにゲーム感覚で学び、ポイントを貯めると無料翻訳回数が増えます。"></span>
+    </p>
+    <div class="feat-points">
+      <div class="fp"><div class="fp-ic">🎮</div><div><h4 data-ko="단어 뜻 맞추기" data-ja="単語の意味クイズ"></h4><p><span data-ko="대화 중 나온 단어 즉시 퀴즈 출제. 정답 시 +3 번역 포인트 적립." data-ja="会話中の単語をすぐクイズに。正解で+3翻訳ポイント獲得。"></span></p></div></div>
+      <div class="fp"><div class="fp-ic">🔀</div><div><h4 data-ko="문장 배열 퀴즈" data-ja="文章並び替えクイズ"></h4><p><span data-ko="단어를 올바른 순서로 배열. 일본어 어순을 자연스럽게 체득." data-ja="単語を正しい順番に並び替え。日本語の語順を自然に習得。"></span></p></div></div>
+      <div class="fp"><div class="fp-ic">⭐</div><div><h4 data-ko="포인트 → 무료 번역 충전" data-ja="ポイント→無料翻訳チャージ"></h4><p><span data-ko="퀴즈 포인트로 번역 횟수 충전. 많이 풀수록 더 많이 번역 가능." data-ja="クイズポイントで翻訳回数をチャージ。解けば解くほど翻訳できる。"></span></p></div></div>
+      <div class="fp"><div class="fp-ic">🏆</div><div><h4 data-ko="그룹 랭킹 경쟁" data-ja="グループランキング競争"></h4><p><span data-ko="채팅방 내 랭킹으로 친구들과 경쟁. 이번 주 1위는 누구?" data-ja="チャットルーム内ランキングで友達と競争。今週の1位は誰だ？"></span></p></div></div>
+    </div>
+  </div>
+  <div class="feat-right">
+    <div class="phone">
+      <div class="ph-notch"></div>
+      <div style="background:#3B82F6;padding:11px 13px;color:white"><div style="font-size:.78rem;font-weight:700">📚 <span data-ko="오늘의 학습" data-ja="今日の学習"></span></div><div style="font-size:.63rem;opacity:.82;margin-top:2px"><span data-ko="대화에서 나온 퀴즈" data-ja="会話から生まれたクイズ"></span></div><div style="height:3px;background:rgba(255,255,255,.25);border-radius:2px;margin-top:8px"><div style="height:100%;width:60%;background:white;border-radius:2px"></div></div><div style="font-size:.56rem;opacity:.6;margin-top:3px"><span data-ko="3/5 완료 · 오늘 9pt 획득" data-ja="3/5完了・今日9pt獲得"></span></div></div>
+      <div style="background:#f8f8f8;padding:10px;display:flex;flex-direction:column;gap:7px">
+        <div style="background:white;border-radius:10px;padding:11px;border:1px solid #eee">
+          <div style="font-size:.62rem;font-weight:700;color:#111;margin-bottom:5px"><span data-ko="문장을 한국어로 배열하세요" data-ja="文章を韓国語に並べ替えてください"></span></div>
+          <div style="background:#f5f5f5;border-radius:6px;padding:8px;text-align:center;margin-bottom:6px"><div style="font-size:.84rem;font-weight:700">今日は忙しい？</div><div style="font-size:.56rem;color:#888;margin-top:2px;font-family:'Space Mono',monospace">きょう は いそがしい？</div></div>
+          <div style="background:#e8fbf0;border:1.5px dashed var(--g);border-radius:6px;padding:5px 8px;min-height:27px;display:flex;gap:4px;align-items:center;margin-bottom:6px"><span style="background:var(--g);color:white;border-radius:4px;padding:2px 6px;font-size:.58rem;font-weight:700"><span data-ko="오늘" data-ja="今日"></span></span><span style="background:var(--g);color:white;border-radius:4px;padding:2px 6px;font-size:.58rem;font-weight:700"><span data-ko="바빠?" data-ja="忙しい？"></span></span></div>
+          <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">
+            <div style="background:#e8fbf0;border:1.5px solid var(--g);border-radius:4px;padding:3px 7px;font-size:.59rem;font-weight:600;color:var(--g)"><span data-ko="오늘" data-ja="今日"></span></div>
+            <div style="background:#f5f5f5;border:1px solid #ddd;border-radius:4px;padding:3px 7px;font-size:.59rem;font-weight:600;color:#555"><span data-ko="너" data-ja="あなた"></span></div>
+            <div style="background:#e8fbf0;border:1.5px solid var(--g);border-radius:4px;padding:3px 7px;font-size:.59rem;font-weight:600;color:var(--g)"><span data-ko="바빠?" data-ja="忙しい？"></span></div>
+            <div style="background:#f5f5f5;border:1px solid #ddd;border-radius:4px;padding:3px 7px;font-size:.59rem;font-weight:600;color:#555"><span data-ko="내일" data-ja="明日"></span></div>
+          </div>
+          <button style="width:100%;background:#3B82F6;color:white;border:none;border-radius:7px;padding:8px;font-size:.68rem;font-weight:700;font-family:inherit"><span data-ko="정답 확인 · +5pt" data-ja="答え合わせ・+5pt"></span></button>
+        </div>
+        <div style="background:white;border-radius:10px;padding:9px;border:1px solid #eee">
+          <div style="font-size:.61rem;font-weight:700;color:#111;margin-bottom:5px">🏆 <span data-ko="이번 주 랭킹" data-ja="今週のランキング"></span></div>
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <div style="display:flex;align-items:center;gap:6px"><span style="font-size:.75rem">🥇</span><span style="font-size:.64rem;font-weight:700;flex:1">Haruki</span><span style="font-size:.61rem;color:var(--g);font-family:'Space Mono',monospace;font-weight:700">128pt</span></div>
+            <div style="display:flex;align-items:center;gap:6px"><span style="font-size:.75rem">🥈</span><span style="font-size:.64rem;font-weight:700;flex:1"><span data-ko="민지" data-ja="ミンジ"></span></span><span style="font-size:.61rem;color:var(--g);font-family:'Space Mono',monospace;font-weight:700">97pt</span></div>
+            <div style="display:flex;align-items:center;gap:6px;background:#e8fbf0;border-radius:4px;padding:3px 5px"><span style="font-size:.75rem">🙋</span><span style="font-size:.64rem;font-weight:700;flex:1;color:var(--g)"><span data-ko="나 (3위)" data-ja="自分 (3位)"></span></span><span style="font-size:.61rem;color:var(--g);font-family:'Space Mono',monospace;font-weight:700">85pt</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="l-nav">
+        <div class="ln-i"><div class="ln-ic">💬</div><span data-ko="번역" data-ja="翻訳"></span></div>
+        <div class="ln-i on" style="color:#3B82F6"><div class="ln-ic">📚</div><span data-ko="학습" data-ja="学習"></span></div>
+        <div class="ln-i"><div class="ln-ic">🤝</div><span data-ko="매칭" data-ja="マッチング"></span></div>
+        <div class="ln-i"><div class="ln-ic">📖</div><span data-ko="스토리" data-ja="ストーリー"></span></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════
+  SLIDE 3: AI 매칭서비스 - 매칭
+══════════════════════════════ -->
+<div class="slide">
+<div class="s-feat s-match">
+  <div class="feat-left" style="overflow-y:auto">
+    <div class="slide-num-badge">03 · <span data-ko="AI 매칭서비스" data-ja="AIマッチングサービス"></span></div>
+    <h2 class="feat-title">
+      <span data-ko="연락처 없이" data-ja="連絡先なしで"></span><br>
+      <em><span data-ko="안전하게" data-ja="安全に"></span></em><br>
+      <span data-ko="연결됩니다" data-ja="つながります"></span>
+    </h2>
+    <p class="feat-desc">
+      <span data-ko="서로의 LINE ID를 절대 공개하지 않습니다. 봇이 중간에서 모든 메시지를 중계하며, 유해 표현·금전유도·스캠을 실시간으로 차단합니다." data-ja="お互いのLINE IDを絶対に公開しません。ボットが中間ですべてのメッセージを中継し、有害表現・金銭誘導・詐欺をリアルタイムでブロックします。"></span>
+    </p>
+    <div class="match-tabs">
+      <button class="mt on" onclick="showMTab('m-match',this)" data-ko="매칭 시스템" data-ja="マッチングシステム"></button>
+      <button class="mt" onclick="showMTab('m-safe',this)" data-ko="🛡️ 안전 중계" data-ja="🛡️ 安全中継"></button>
+      <button class="mt" onclick="showMTab('m-arch',this)" data-ko="아키텍처" data-ja="アーキテクチャ"></button>
+    </div>
+
+    <!-- 매칭 시스템 -->
+    <div class="mtab-panel on" id="m-match">
+      <div class="feat-points">
+        <div class="fp"><div class="fp-ic">🔒</div><div><h4 data-ko="연락처 비공개 보호" data-ja="連絡先非公開保護"></h4><p><span data-ko="매칭된 두 사람은 봇과만 대화합니다. 실제 LINE ID가 절대 노출되지 않습니다." data-ja="マッチングした2人はボットとのみ会話。実際のLINE IDは絶対に公開されません。"></span></p></div></div>
+        <div class="fp"><div class="fp-ic">🎯</div><div><h4 data-ko="조건 기반 AI 매칭" data-ja="条件ベースAIマッチング"></h4><p><span data-ko="학습 목표·관심사·언어 수준에 맞는 파트너를 AI가 추천합니다." data-ja="学習目標・興味・語学レベルに合ったパートナーをAIが推薦します。"></span></p></div></div>
+        <div class="fp"><div class="fp-ic">🚪</div><div><h4 data-ko="신고 · 차단 · 즉시 종료" data-ja="通報・ブロック・即時終了"></h4><p><span data-ko="문제 발생 시 버튼 한 번으로 신고·차단·세션 종료. 증거가 자동 보존됩니다." data-ja="問題発生時はボタン1つで通報・ブロック・セッション終了。証拠は自動保存。"></span></p></div></div>
+        <div class="fp"><div class="fp-ic">📊</div><div><h4 data-ko="신뢰 스코어 시스템" data-ja="信頼スコアシステム"></h4><p><span data-ko="좋은 대화가 쌓일수록 신뢰 점수 상승. 높은 점수 사용자가 더 좋은 파트너와 연결됩니다." data-ja="良い会話が積み重なるほど信頼スコアが上昇。スコアが高いほど良いパートナーと繋がれます。"></span></p></div></div>
+      </div>
+    </div>
+
+    <!-- 안전 중계 -->
+    <div class="mtab-panel" id="m-safe">
+      <div class="feat-points">
+        <div class="fp" style="border-color:rgba(6,199,85,.2)"><div class="fp-ic" style="background:rgba(6,199,85,.15)">✅</div><div><h4 data-ko="정책 A · 정상 전달" data-ja="ポリシーA・正常転送"></h4><p><span data-ko="위험 점수 낮음. 메시지 그대로 번역 후 전달." data-ja="リスクスコア低。メッセージをそのまま翻訳して転送。"></span></p></div></div>
+        <div class="fp" style="border-color:rgba(251,191,36,.2)"><div class="fp-ic" style="background:rgba(251,191,36,.15)">⚠️</div><div><h4 data-ko="정책 B · 자동 순화 전송" data-ja="ポリシーB・自動言い換え送信"></h4><p><span data-ko='"왜 이렇게 답답해?" → "조금 답답하게 느껴졌어요" 자동 순화 후 전달.' data-ja='"なんでこんなにイライラする？" → "少しもどかしく感じました" に言い換えて送信。'></span></p></div></div>
+        <div class="fp" style="border-color:rgba(255,107,53,.2)"><div class="fp-ic" style="background:rgba(255,107,53,.15)">🚫</div><div><h4 data-ko="정책 C · 성희롱·금전유도 차단" data-ja="ポリシーC・性的嫌がらせ・金銭誘導ブロック"></h4><p><span data-ko="전달 차단 + 발신자 경고. 반복 시 세션 즉시 종료 + 운영자 검토." data-ja="転送ブロック＋送信者警告。繰り返しの場合はセッション即時終了＋管理者確認。"></span></p></div></div>
+        <div class="fp" style="border-color:rgba(239,68,68,.2)"><div class="fp-ic" style="background:rgba(239,68,68,.15)">🔴</div><div><h4 data-ko="정책 D · 즉시 차단 + 기록 보존" data-ja="ポリシーD・即時ブロック＋記録保存"></h4><p><span data-ko="심각한 위협 감지 시 즉시 차단 + 계정 제한 + 증거 로그 자동 보존." data-ja="深刻な脅威検出時は即時ブロック＋アカウント制限＋証拠ログ自動保存。"></span></p></div></div>
+      </div>
+    </div>
+
+    <!-- 아키텍처 -->
+    <div class="mtab-panel" id="m-arch">
+      <div class="arch">
+        <div class="a-label"><span data-ko="사용자 레이어" data-ja="ユーザーレイヤー"></span></div>
+        <div class="arch-row">
+          <div class="an"><div class="an-ic">📱</div><div class="an-n"><span data-ko="사용자 A (한국어)" data-ja="ユーザーA (韓国語)"></span></div></div>
+          <div class="a-arr">⟷</div>
+          <div class="an"><div class="an-ic">📱</div><div class="an-n"><span data-ko="사용자 B (일본어)" data-ja="ユーザーB (日本語)"></span></div></div>
+        </div>
+        <div class="a-down">↓</div>
+        <div class="an" style="width:100%"><div class="an-ic">🚪</div><div class="an-n">Bot Gateway</div><div class="an-d"><span data-ko="Webhook 수신 · 서명 검증 · 큐 적재" data-ja="Webhook受信・署名検証・キュー投入"></span></div></div>
+        <div class="a-down">↓</div>
+        <div class="a-group">
+          <div class="an red"><div class="an-ic">🛡️</div><div class="an-n">Moderation AI</div><div class="an-d"><span data-ko="유해·스캠·금전유도 탐지" data-ja="有害・詐欺・金銭誘導検出"></span><div class="act-tags"><span class="at at-g">allow</span><span class="at at-y">warn</span><span class="at at-r">block</span></div></div></div>
+          <div class="an"><div class="an-ic">🔤</div><div class="an-n">Translation</div><div class="an-d"><span data-ko="한↔일 번역 + 발음" data-ja="韓↔日翻訳＋発音"></span></div></div>
+          <div class="an"><div class="an-ic">🔗</div><div class="an-n">Session</div><div class="an-d"><span data-ko="매칭 세션 관리" data-ja="マッチングセッション管理"></span></div></div>
+        </div>
+        <div class="a-down">↓</div>
+        <div class="an gold" style="width:100%"><div class="an-ic">🎛️</div><div class="an-n">Message Orchestrator</div><div class="an-d"><span data-ko="결과 종합 → 최종 액션 결정 → 상대방에게 전달" data-ja="結果統合→最終アクション決定→相手に転送"></span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="feat-right">
+    <div class="phone">
+      <div class="ph-notch"></div>
+      <div style="background:#7C3AED;padding:10px 12px;color:white"><div style="font-size:.78rem;font-weight:700">🤝 <span data-ko="AI 매칭서비스" data-ja="AIマッチングサービス"></span></div><div style="font-size:.62rem;opacity:.75;margin-top:1px"><span data-ko="연락처 비공개 보호 중" data-ja="連絡先非公開保護中"></span></div></div>
+      <div class="l-body" style="min-height:280px">
+        <div style="background:rgba(124,58,237,.12);border:1px solid rgba(124,58,237,.3);border-radius:6px;padding:5px 8px;font-size:.57rem;color:#a78bfa;text-align:center;font-weight:600">🔒 <span data-ko="LINE ID 비공개 · 봇 중계 중" data-ja="LINE ID非公開・ボット中継中"></span></div>
+        <div class="ts"><span data-ko="오후 3:20" data-ja="午後3:20"></span></div>
+        <div class="r"><div class="av" style="background:#7C3AED">陽</div><div class="b b-t">連絡先教えて？</div></div>
+        <div class="r"><div class="av" style="background:#dc2626">🛡️</div><div><div style="font-size:.54rem;color:#dc2626;margin-bottom:1px;font-weight:700">SAFETY FILTER</div><div class="b b-rd"><span data-ko="🚫 외부 연락처 요청 차단됨. 상대방에게 전달되지 않았습니다." data-ja="🚫 外部連絡先要求をブロック。相手には届きませんでした。"></span></div></div></div>
+        <!-- normal chat -->
+        <div class="r"><div class="av" style="background:#7C3AED">陽</div><div class="b b-t"><span data-ko="오늘 뭐 했어?" data-ja="今日何してた？"></span></div></div>
+        <div class="r"><div class="av" style="background:#fbbf24">🤖</div><div class="b b-bot"><div class="rb"><span data-ko="오늘 뭐 했어?" data-ja="今日何してた？"></span></div><div class="rp"><span data-ko="✅ 정상 → 전달됨" data-ja="✅ 正常→転送済み"></span></div></div></div>
+        <div class="r rt"><div class="b b-m"><span data-ko="익선동 카페 다녀왔어 ☕" data-ja="益善洞のカフェに行ってきた ☕"></span></div></div>
+        <div style="background:white;border-radius:10px;border:1px solid #f0f0f0;overflow:hidden;max-width:190px">
+          <div style="background:#f8f8f8;border-bottom:1px solid #eee;padding:6px 9px;display:flex;gap:6px;align-items:center"><div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--g),#3B82F6);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0">🌊</div><div><div style="font-size:.7rem;font-weight:700;color:#111">Yuki · 22 · <span data-ko="도쿄" data-ja="東京"></span></div><div style="font-size:.57rem;color:var(--g);font-weight:600"><span data-ko="신뢰점수 92 · 매칭됨" data-ja="信頼スコア92・マッチング済み"></span></div></div></div>
+          <div style="padding:7px 9px;display:flex;gap:4px"><button style="flex:1;background:#fef2f2;color:#dc2626;border:1px solid #fca5a5;border-radius:5px;padding:5px;font-size:.59rem;font-weight:700;font-family:inherit;cursor:pointer"><span data-ko="신고" data-ja="通報"></span></button><button style="flex:1;background:#f5f5f5;color:#555;border:1px solid #e0e0e0;border-radius:5px;padding:5px;font-size:.59rem;font-weight:700;font-family:inherit;cursor:pointer"><span data-ko="차단" data-ja="ブロック"></span></button><button style="flex:1;background:#f5f5f5;color:#555;border:1px solid #e0e0e0;border-radius:5px;padding:5px;font-size:.59rem;font-weight:700;font-family:inherit;cursor:pointer"><span data-ko="종료" data-ja="終了"></span></button></div>
+        </div>
+      </div>
+      <div class="l-inp"><div class="l-ip"><span data-ko="메시지 입력..." data-ja="メッセージを入力..."></span></div><div class="l-sd">↑</div></div>
+      <div class="l-nav">
+        <div class="ln-i"><div class="ln-ic">💬</div><span data-ko="번역" data-ja="翻訳"></span></div>
+        <div class="ln-i"><div class="ln-ic">📚</div><span data-ko="학습" data-ja="学習"></span></div>
+        <div class="ln-i on" style="color:#7C3AED"><div class="ln-ic">🤝</div><span data-ko="매칭" data-ja="マッチング"></span></div>
+        <div class="ln-i"><div class="ln-ic">📖</div><span data-ko="스토리" data-ja="ストーリー"></span></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════
+  SLIDE 4: AI 스토리 - 기술원리
+══════════════════════════════ -->
+<div class="slide">
+<div class="story-extra" style="color:white">
+  <div class="stag" style="color:var(--gold)">04 · <span data-ko="AI 스토리 — 기술 원리" data-ja="AIストーリー — 技術原理"></span></div>
+  <h2 class="stitle" style="color:white;font-size:clamp(1.7rem,2.5vw,2.4rem);margin-bottom:10px">
+    <span data-ko="대화 데이터가" data-ja="会話データが"></span><br>
+    <em style="font-style:italic;color:var(--gold)"><span data-ko="개인 매거진" data-ja="個人マガジン"></span></em><span data-ko="이 되는 5단계" data-ja="になる5ステップ"></span>
+  </h2>
+  <p class="ssub" style="color:rgba(255,255,255,.45);max-width:620px">
+    <span data-ko="발화 분석 → LLM 각색 → 시각화 → 승인 → 신뢰도 강화. 직접 쓰지 않아도 진정성 있는 콘텐츠가 쌓입니다." data-ja="発話分析→LLM加工→ビジュアル化→承認→信頼度強化。自分で書かなくても真正性のあるコンテンツが積み上がります。"></span>
+  </p>
+  <div class="process-5">
+    <div class="ps"><div class="ps-n">STEP 01</div><div class="ps-ic">🎙️</div><h4 data-ko="발화 추출 & 필터링" data-ja="発話抽出＆フィルタリング"></h4><p><span data-ko="본인 발화만 수집. 상대방 정보 제외. 금전·성적·정치 자동 차단. 여행·음식·문화 등 좋은 주제 감지." data-ja="自分の発言のみ収集。相手の情報は除外。金銭・性的・政治は自動ブロック。旅行・食事・文化等の良いテーマを検出。"></span></p><div class="psa">→</div></div>
+    <div class="ps"><div class="ps-n">STEP 02</div><div class="ps-ic">🧠</div><h4 data-ko="세션 종료 후 LLM 분석" data-ja="セッション終了後LLM分析"></h4><p><span data-ko="세션 종료 시 GPT-4o가 전체 분석. 로그 나열이 아닌 경험 중심 '글' 형태로 재구성." data-ja="セッション終了時にGPT-4oが全体を分析。ログ列挙ではなく経験中心の「文章」形式に再構成。"></span></p><div class="psa">→</div></div>
+    <div class="ps"><div class="ps-n">STEP 03</div><div class="ps-ic">✍️</div><h4 data-ko="문학적 각색 & 스타일" data-ja="文学的加工＆スタイル"></h4><p><span data-ko="수필·여행기·잡지 스타일 적용. 장소 언급 시 구글 평점·위치 자동 연결." data-ja="随筆・旅行記・雑誌スタイルを適用。場所言及時にGoogleレーティング・位置情報を自動接続。"></span></p><div class="psa">→</div></div>
+    <div class="ps"><div class="ps-n">STEP 04</div><div class="ps-ic">✅</div><h4 data-ko="사용자 승인 & 편집" data-ja="ユーザー承認＆編集"></h4><p><span data-ko="AI 초안 즉시 공개 없음. 사용자가 공개/나만보기/삭제 직접 결정. 통제권은 항상 사용자에게." data-ja="AI草稿はすぐに公開されません。ユーザーが公開/自分のみ/削除を直接決定。コントロール権は常にユーザーに。"></span></p><div class="psa">→</div></div>
+    <div class="ps"><div class="ps-n">STEP 05</div><div class="ps-ic">📊</div><h4 data-ko="신뢰도 태그 & 매칭 강화" data-ja="信頼度タグ＆マッチング強化"></h4><p><span data-ko="저장된 스토리가 #카페 #여행 등 Confidence Score를 높여 더 정확한 파트너 매칭으로 연결." data-ja="保存されたストーリーが#カフェ #旅行等のConfidence Scoreを上げ、より正確なパートナーマッチングに繋がります。"></span></p></div>
+  </div>
+
+  <!-- Confidence Score bars -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:28px">
+    <div>
+      <h4 style="font-size:.82rem;font-weight:700;color:white;margin-bottom:14px">🎯 <span data-ko="관심 태그 신뢰도 (Confidence Score)" data-ja="興味タグ信頼度 (Confidence Score)"></span></h4>
+      <div class="trust-box">
+        <div class="tr"><div class="trl"><span data-ko="여행" data-ja="旅行"></span></div><div class="trb"><div class="trf" style="width:88%"></div></div><div class="trs">88</div></div>
+        <div class="tr"><div class="trl"><span data-ko="카페" data-ja="カフェ"></span></div><div class="trb"><div class="trf" style="width:76%"></div></div><div class="trs">76</div></div>
+        <div class="tr"><div class="trl"><span data-ko="음식" data-ja="食事"></span></div><div class="trb"><div class="trf" style="width:65%"></div></div><div class="trs">65</div></div>
+        <div class="tr"><div class="trl"><span data-ko="문화" data-ja="文化"></span></div><div class="trb"><div class="trf" style="width:54%"></div></div><div class="trs">54</div></div>
+        <div class="tr"><div class="trl">K-pop</div><div class="trb"><div class="trf" style="width:42%"></div></div><div class="trs">42</div></div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center">
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(212,160,23,.2);border-radius:14px;padding:18px;width:100%">
+        <h4 style="font-size:.8rem;font-weight:700;color:white;margin-bottom:12px">📖 <span data-ko="이 기술의 핵심 가치" data-ja="この技術のコアバリュー"></span></h4>
+        <div style="display:flex;flex-direction:column;gap:9px">
+          <div style="display:flex;gap:10px;align-items:flex-start"><span style="font-size:1rem;flex-shrink:0">✍️</span><div><div style="font-size:.76rem;font-weight:700;color:white;margin-bottom:2px"><span data-ko="직접 쓰지 않아도" data-ja="自分で書かなくても"></span></div><div style="font-size:.7rem;color:rgba(255,255,255,.42);line-height:1.5"><span data-ko="대화만으로 진정성 있는 콘텐츠 자동 생성" data-ja="会話だけで真正性のあるコンテンツを自動生成"></span></div></div></div>
+          <div style="display:flex;gap:10px;align-items:flex-start"><span style="font-size:1rem;flex-shrink:0">🔒</span><div><div style="font-size:.76rem;font-weight:700;color:white;margin-bottom:2px"><span data-ko="상대방 정보 완전 제외" data-ja="相手の情報を完全除外"></span></div><div style="font-size:.7rem;color:rgba(255,255,255,.42);line-height:1.5"><span data-ko="개인정보 보호와 대화의 맥락적 안전성 확보" data-ja="個人情報保護と会話の文脈的安全性を確保"></span></div></div></div>
+          <div style="display:flex;gap:10px;align-items:flex-start"><span style="font-size:1rem;flex-shrink:0">📈</span><div><div style="font-size:.76rem;font-weight:700;color:white;margin-bottom:2px"><span data-ko="신뢰 기반 매칭 자산화" data-ja="信頼ベースのマッチング資産化"></span></div><div style="font-size:.7rem;color:rgba(255,255,255,.42);line-height:1.5"><span data-ko="스토리 → 태그 신뢰도 → 더 좋은 매칭" data-ja="ストーリー→タグ信頼度→より良いマッチング"></span></div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════
+  SLIDE 5: AI 스토리 - 매거진 샘플
+══════════════════════════════ -->
+<div class="slide">
+<div class="s-feat s-story">
+  <div class="feat-left">
+    <div class="slide-num-badge">04 · <span data-ko="AI 스토리 — 매거진 샘플" data-ja="AIストーリー — マガジンサンプル"></span></div>
+    <h2 class="feat-title">
+      <span data-ko="대화가 자동으로" data-ja="会話が自動で"></span><br>
+      <em><span data-ko="나만의 잡지" data-ja="自分だけの雑誌"></span></em><br>
+      <span data-ko="가 됩니다" data-ja="になります"></span>
+    </h2>
+    <p class="feat-desc"><span data-ko="AI가 내 발화에서 여행·음식·문화 이야기를 감지해 수필·여행기 형태로 재구성합니다. 상대방 정보는 완전히 제외되며, 나만의 콘텐츠가 신뢰 자산으로 쌓입니다." data-ja="AIが自分の発言から旅行・食事・文化の話を感知し、随筆・旅行記の形に再構成します。相手の情報は完全に除外され、自分だけのコンテンツが信頼資産として蓄積されます。"></span></p>
+    <div class="feat-points">
+      <div class="fp"><div class="fp-ic">✍️</div><div><h4 data-ko="AI 문학적 각색" data-ja="AI文学的加工"></h4><p><span data-ko='"익선동 한옥 골목의 밤 분위기"처럼 수필·여행기·잡지 스타일로 자동 정리.' data-ja="「益善洞の韓屋路地の夜の雰囲気」のように随筆・旅行記・雑誌スタイルで自動整理。"></span></p></div></div>
+      <div class="fp"><div class="fp-ic">📍</div><div><h4 data-ko="장소 정보 자동 연결" data-ja="場所情報自動接続"></h4><p><span data-ko="장소 언급 시 구글 평점·위치·영업시간 자동 수집해 스토리에 링크로 삽입." data-ja="場所言及時にGoogleレーティング・位置・営業時間を自動収集してストーリーにリンク挿入。"></span></p></div></div>
+      <div class="fp"><div class="fp-ic">✅</div><div><h4 data-ko="반자동 승인 구조" data-ja="半自動承認構造"></h4><p><span data-ko="AI 초안 → 사용자 확인 → 공개/나만보기/삭제. 통제권은 항상 나에게." data-ja="AI草稿→ユーザー確認→公開/自分のみ/削除。コントロール権は常に自分に。"></span></p></div></div>
+    </div>
+  </div>
+  <div class="feat-right">
+    <div class="mag-card">
+      <div class="mag-cover">
+        <div style="position:absolute;inset:0;background:linear-gradient(160deg,#1a1209,#2d1f0a);opacity:.95"></div>
+        <div class="mag-cat-b"><span data-ko="TRAVEL · CAFÉ" data-ja="TRAVEL · CAFÉ"></span></div>
+        <div class="mag-cv-t">
+          <div class="mag-tit"><span data-ko="익선동 한옥 골목의 밤 분위기" data-ja="益善洞の韓屋路地の夜の雰囲気"></span></div>
+          <div class="mag-m"><span data-ko="AI 생성 · Yuki와의 대화 기반" data-ja="AI生成・Yukiとの会話ベース"></span></div>
+        </div>
+      </div>
+      <div class="mag-b">
+        <div class="mag-at">
+          <div class="m-av"><span data-ko="민" data-ja="ミ"></span></div>
+          <div><div class="m-an"><span data-ko="민지" data-ja="ミンジ"></span></div><div class="m-am"><span data-ko="Yuki와의 대화에서 자동 생성" data-ja="Yukiとの会話から自動生成"></span></div></div>
+          <div class="m-ai">AI</div>
+        </div>
+        <div style="background:rgba(212,160,23,.1);border:1px solid rgba(212,160,23,.3);border-radius:5px;padding:4px 9px;font-size:.58rem;color:#92400e;font-weight:600;display:inline-flex;align-items:center;gap:4px;margin-bottom:10px">⏳ <span data-ko="승인 대기 중" data-ja="承認待ち"></span></div>
+        <div class="mag-txt"><em><span data-ko="골목 끝에서 은은히 새어나오는 불빛 아래, 오래된 기와지붕과 낮은 담장이 만들어내는 풍경은 서울 한복판에서도 시간이 멈춘 듯한 착각을 불러일으킨다." data-ja="路地の奥からほのかに漏れる灯りの下、古い瓦屋根と低い塀が作り出す風景は、ソウルの真ん中でも時が止まったような錯覚を覚えさせる。"></span></em></div>
+        <div class="mag-loc">
+          <span style="font-size:.9rem">📍</span>
+          <div style="flex:1"><div class="ml-t"><span data-ko="익선동 한옥마을 · 서울 종로구" data-ja="益善洞韓屋マウル・ソウル鍾路区"></span></div><div class="ml-m"><span data-ko="구글 ⭐ 4.4 · 10:00–22:00 · 자동 연결됨" data-ja="Google ⭐ 4.4 · 10:00–22:00 · 自動接続"></span></div></div>
+          <div class="ml-l"><span data-ko="지도 →" data-ja="地図 →"></span></div>
+        </div>
+        <div class="mag-tags"><span class="mtg">#<span data-ko="카페" data-ja="カフェ"></span></span><span class="mtg">#<span data-ko="여행" data-ja="旅行"></span></span><span class="mtg">#<span data-ko="익선동" data-ja="益善洞"></span></span><span class="mtg">#<span data-ko="한옥" data-ja="韓屋"></span></span></div>
+        <div class="mag-acts">
+          <button class="ma ma-pub"><span data-ko="전체 공개" data-ja="全体公開"></span></button>
+          <button class="ma ma-prv"><span data-ko="나만 보기" data-ja="自分のみ"></span></button>
+          <button class="ma ma-del"><span data-ko="삭제" data-ja="削除"></span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════
+  SLIDE 6: PRICING
+══════════════════════════════ -->
+<div class="slide">
+<div class="s-price">
+  <div class="stag" style="color:var(--g)"><span data-ko="요금제" data-ja="料金プラン"></span></div>
+  <h2 class="stitle" style="font-size:clamp(1.7rem,2.5vw,2.4rem);color:var(--bk);margin-bottom:8px"><span data-ko="기존 번역봇 절반 가격,<br>안전·학습·매칭·스토리까지" data-ja="既存翻訳ボットの半額で<br>安全・学習・マッチング・ストーリーまで"></span></h2>
+  <p class="ssub" style="color:var(--gr);max-width:500px"><span data-ko="기존 LINE 번역봇 월 13,000원 대비 저렴하고, 안전 중계까지 포함됩니다." data-ja="既存のLINE翻訳ボット月13,000ウォン比で安価で、安全中継も含まれます。"></span></p>
+  <div class="pgrid">
+    <div class="pc">
+      <div class="pc-n">Free</div>
+      <div class="pc-p">0<sub><span data-ko="원" data-ja="円"></span></sub></div>
+      <div class="pc-per"><span data-ko="1개월 무료 체험" data-ja="1ヶ月無料体験"></span></div>
+      <div class="pc-div"></div>
+      <div class="pc-fs">
+        <div class="pf"><span class="ok">✓</span><span data-ko="AI 번역채팅 20회/일" data-ja="AI翻訳チャット20回/日"></span></div>
+        <div class="pf"><span class="ok">✓</span><span data-ko="발음 표기" data-ja="発音表記"></span></div>
+        <div class="pf"><span class="ok">✓</span><span data-ko="안전 중계 (욕설·성희롱 차단)" data-ja="安全中継（悪口・性的嫌がらせブロック）"></span></div>
+        <div class="pf"><span class="ok">✓</span><span data-ko="AI 언어선생님 퀴즈 + 포인트" data-ja="AI語学先生クイズ＋ポイント"></span></div>
+        <div class="pf"><span class="ok">✓</span><span data-ko="AI 스토리 1편 체험" data-ja="AIストーリー1本体験"></span></div>
+        <div class="pf"><span class="no">✗</span><span data-ko="무제한 번역" data-ja="無制限翻訳"></span></div>
+        <div class="pf"><span class="no">✗</span><span data-ko="AI 매칭서비스" data-ja="AIマッチングサービス"></span></div>
+      </div>
+      <button class="pc-btn"><span data-ko="무료로 시작" data-ja="無料で始める"></span></button>
+    </div>
+    <div class="pc hot">
+      <div class="pc-badge">🔥 <span data-ko="가장 인기" data-ja="最人気"></span></div>
+      <div class="pc-n">Standard</div>
+      <div class="pc-p"><sup>₩</sup>9,800<sub>/2<span data-ko="개월" data-ja="ヶ月"></span></sub></div>
+      <div class="pc-per"><span data-ko="월 4,900원 · 2개월 단위" data-ja="月4,900ウォン・2ヶ月単位"></span></div>
+      <div class="pc-div"></div>
+      <div class="pc-fs">
+        <div class="pf"><span class="ok">✓</span><span data-ko="무제한 AI 번역채팅" data-ja="無制限AI翻訳チャット"></span></div>
+        <div class="pf"><span class="ok">✓</span><span data-ko="발음 + 표현 설명" data-ja="発音＋表現説明"></span></div>
+        <div class="pf"><span class="ok">✓</span><span data-ko="안전 중계 전체 (스캠·금전유도 포함)" data-ja="安全中継全体（詐欺・金銭誘導含む）"></span></div>
+        <div class="pf"><span class="ok">✓</span><span data-ko="AI 언어선생님 퀴즈 + 랭킹" data-ja="AI語学先生クイズ＋ランキング"></span></div>
+        <div class="pf"><span class="ok">✓</span><span data-ko="AI 매칭서비스 (월 5회)" data-ja="AIマッチングサービス（月5回）"></span></div>
+        <div class="pf"><span class="ok">✓</span><span data-ko="AI 스토리 월 10편" data-ja="AIストーリー月10本"></span></div>
+      </div>
+      <button class="pc-btn"><span data-ko="스탠다드 시작" data-ja="スタンダードを始める"></span></button>
+    </div>
+    <div class="pc">
+      <div class="pc-n">Premium</div>
+      <div class="pc-p"><sup>₩</sup>19,800<sub>/2<span data-ko="개월" data-ja="ヶ月"></span></sub></div>
+      <div class="pc-per"><span data-ko="월 9,900원 · 2개월 단위" data-ja="月9,900ウォン・2ヶ月単位"></span></div>
+      <div class="pc-div"></div>
+      <div class="pc-fs">
+        <div class="pf"><span class="ok">✓</span><span data-ko="무제한 AI 번역채팅" data-ja="無制限AI翻訳チャット"></span></div>
+        <div class="pf"><span class="ok">✓</span><span data-ko="발음 + 표현 설명" data-ja="発音＋表現説明"></span></div>
+        <div class="pf"><span class="ok">✓</span><span data-ko="안전 중계 + 안전 분석 리포트" data-ja="安全中継＋安全分析レポート"></span></div>
+        <div class="pf"><span class="ok">✓</span><span data-ko="AI 언어선생님 + 학습카드" data-ja="AI語学先生＋学習カード"></span></div>
+        <div class="pf"><span class="ok">✓</span><span data-ko="AI 매칭서비스 무제한 + 우선 매칭" data-ja="AIマッチング無制限＋優先マッチング"></span></div>
+        <div class="pf"><span class="ok">✓</span><span data-ko="AI 스토리 무제한 + 잡지 레이아웃" data-ja="AIストーリー無制限＋マガジンレイアウト"></span></div>
+      </div>
+      <button class="pc-btn"><span data-ko="프리미엄 시작" data-ja="プレミアムを始める"></span></button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════
+  SLIDE 7: ROADMAP
+══════════════════════════════ -->
+<div class="slide">
+<div class="s-road">
+  <div class="stag"><span data-ko="로드맵" data-ja="ロードマップ"></span></div>
+  <h2 class="stitle" style="color:white;font-size:clamp(1.7rem,2.5vw,2.4rem);margin-bottom:10px"><span data-ko="LINE 봇에서<br>독립 플랫폼으로" data-ja="LINEボットから<br>独立プラットフォームへ"></span></h2>
+  <p class="ssub" style="color:rgba(255,255,255,.38);max-width:520px"><span data-ko="단계적으로 검증하며 확장하는 현실적인 전략." data-ja="段階的に検証しながら拡大する現実的な戦略。"></span></p>
+  <div class="road-grid">
+    <div class="rc on">
+      <div class="rdot"></div>
+      <div class="r-per"><span data-ko="1단계 · 1~3개월" data-ja="フェーズ1・1〜3ヶ月"></span></div>
+      <h3>🤖 <span data-ko="LINE 봇 MVP" data-ja="LINEボットMVP"></span></h3>
+      <div class="r-items">
+        <div class="ri"><span data-ko="AI 번역채팅 + 발음 표기" data-ja="AI翻訳チャット＋発音表記"></span></div>
+        <div class="ri"><span data-ko="기본 안전 중계 시스템" data-ja="基本安全中継システム"></span></div>
+        <div class="ri"><span data-ko="1:1 세션 매칭" data-ja="1:1セッションマッチング"></span></div>
+        <div class="ri"><span data-ko="AI 언어선생님 퀴즈" data-ja="AI語学先生クイズ"></span></div>
+        <div class="ri"><span data-ko="AI 스토리 기본 기능" data-ja="AIストーリー基本機能"></span></div>
+      </div>
+    </div>
+    <div class="rc">
+      <div class="rdot"></div>
+      <div class="r-per"><span data-ko="2단계 · 4~9개월" data-ja="フェーズ2・4〜9ヶ月"></span></div>
+      <h3>📊 <span data-ko="고도화 + 카카오 확장" data-ja="高度化＋Kakao拡張"></span></h3>
+      <div class="r-items">
+        <div class="ri"><span data-ko="스캠·보이스피싱 탐지 고도화" data-ja="詐欺・ボイスフィッシング検出高度化"></span></div>
+        <div class="ri"><span data-ko="관리자 콘솔 완성" data-ja="管理コンソール完成"></span></div>
+        <div class="ri"><span data-ko="카카오톡 봇 확장" data-ja="カカオトークボット拡張"></span></div>
+        <div class="ri"><span data-ko="AI 스토리 잡지 레이아웃" data-ja="AIストーリー雑誌レイアウト"></span></div>
+        <div class="ri"><span data-ko="신뢰 스코어 시스템" data-ja="信頼スコアシステム"></span></div>
+      </div>
+    </div>
+    <div class="rc">
+      <div class="rdot"></div>
+      <div class="r-per"><span data-ko="3단계 · 10개월~" data-ja="フェーズ3・10ヶ月〜"></span></div>
+      <h3>🚀 <span data-ko="독립 플랫폼" data-ja="独立プラットフォーム"></span></h3>
+      <div class="r-items">
+        <div class="ri"><span data-ko="독립 앱 출시" data-ja="独立アプリリリース"></span></div>
+        <div class="ri"><span data-ko="매거진 피드 소셜 기능" data-ja="マガジンフィードSNS機能"></span></div>
+        <div class="ri"><span data-ko="AI 문장 교정 + 교육" data-ja="AI文章添削＋教育"></span></div>
+        <div class="ri"><span data-ko="다국어 확장 (중국어 등)" data-ja="多言語拡張（中国語等）"></span></div>
+        <div class="ri"><span data-ko="특허 출원 검토" data-ja="特許出願検討"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom CTA inside last slide -->
+  <div style="margin-top:36px;background:linear-gradient(135deg,rgba(6,199,85,.12),rgba(6,199,85,.04));border:1px solid rgba(6,199,85,.2);border-radius:16px;padding:26px 32px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px">
+    <div>
+      <h3 style="font-family:'DM Serif Display',serif;font-size:1.5rem;color:white;margin-bottom:6px"><span data-ko="지금 바로 시작하세요" data-ja="今すぐ始めましょう"></span></h3>
+      <p style="font-size:.84rem;color:rgba(255,255,255,.45)"><span data-ko="AI 번역채팅 · AI 언어선생님 · AI 매칭서비스 · AI 스토리 — 무료 체험" data-ja="AI翻訳チャット・AI語学先生・AIマッチング・AIストーリー — 無料体験"></span></p>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <div style="background:var(--g);color:white;padding:12px 26px;border-radius:11px;font-weight:700;font-size:.86rem;cursor:pointer">🟢 <span data-ko="LINE에서 무료 시작" data-ja="LINEで無料スタート"></span></div>
+      <div style="background:rgba(255,255,255,.07);color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.15);padding:12px 26px;border-radius:11px;font-weight:500;font-size:.86rem;cursor:pointer"><span data-ko="요금제 자세히 보기 →" data-ja="料金プランを見る →"></span></div>
+    </div>
+  </div>
+</div>
+</div>
+
+</div><!-- /slides-wrap -->
+</div><!-- /slider -->
+
+<!-- PAGE NAV -->
+<div id="page-nav">
+  <button class="nav-btn" id="nav-prev" onclick="move(-1)" disabled>‹</button>
+  <div class="page-dots" id="dots"></div>
+  <button class="nav-btn" id="nav-next" onclick="move(1)">›</button>
+  <div class="page-counter" id="counter">1 / 8</div>
+</div>
+
+<script>
+// ── i18n ──
+let lang = 'ko';
+const TOTAL = document.querySelectorAll('.slides > .slide').length;
+
+function setLang(l) {
+  lang = l;
+  document.body.classList.toggle('jp', l === 'ja');
+  document.querySelectorAll('.lb').forEach(b => b.classList.toggle('on', b.textContent.trim() === (l === 'ko' ? '한국어' : '日本語')));
+  applyLang();
+}
+
+function applyLang() {
+  document.querySelectorAll('[data-ko],[data-ja]').forEach(el => {
+    const txt = el.getAttribute('data-' + lang);
+    if (txt !== null) el.innerHTML = txt;
+  });
+  // also buttons with data attrs
+  document.querySelectorAll('[data-ko]').forEach(el => {
+    if (el.tagName === 'BUTTON' || el.closest('button')) {
+      const txt = el.getAttribute('data-' + lang);
+      if (txt !== null) el.innerHTML = txt;
+    }
+  });
+  // match tabs labels
+  document.querySelectorAll('.mt').forEach(b => {
+    const ko = b.getAttribute('data-ko'), ja = b.getAttribute('data-ja');
+    if (ko && ja) b.textContent = lang === 'ko' ? ko : ja;
+  });
+}
+
+// ── SLIDER ──
+let cur = 0;
+const wrap = document.getElementById('slides-wrap');
+const dots_wrap = document.getElementById('dots');
+const counter = document.getElementById('counter');
+const prev_btn = document.getElementById('nav-prev');
+const next_btn = document.getElementById('nav-next');
+const arr_l = document.getElementById('arr-l');
+const arr_r = document.getElementById('arr-r');
+
+// build dots
+for (let i = 0; i < TOTAL; i++) {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i === 0 ? ' on' : '');
+  d.onclick = () => goTo(i);
+  dots_wrap.appendChild(d);
+}
+
+function goTo(n) {
+  cur = Math.max(0, Math.min(TOTAL - 1, n));
+  wrap.style.transform = `translateX(-${cur * 100}%)`;
+  document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('on', i === cur));
+  counter.textContent = `${cur + 1} / ${TOTAL}`;
+  prev_btn.disabled = cur === 0;
+  next_btn.disabled = cur === TOTAL - 1;
+  arr_l.disabled = cur === 0;
+  arr_r.disabled = cur === TOTAL - 1;
+}
+
+function move(dir) { goTo(cur + dir); }
+
+// keyboard
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') move(1);
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   move(-1);
+});
+
+// touch swipe
+let tx = 0;
+document.getElementById('slider').addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, {passive:true});
+document.getElementById('slider').addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - tx;
+  if (Math.abs(dx) > 40) move(dx < 0 ? 1 : -1);
+}, {passive:true});
+
+// match sub-tabs
+function showMTab(id, btn) {
+  document.querySelectorAll('.mtab-panel').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.mt').forEach(b => b.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  btn.classList.add('on');
+}
+
+// cover menu cards click
+document.querySelectorAll('.cm-card').forEach((c, i) => {
+  c.style.cursor = 'pointer';
+});
+
+// init
+goTo(0);
+applyLang();
+</script>
+</body>
+</html>

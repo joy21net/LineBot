@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ko">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>예약하기</title>
+</head>
+
+<body>
+  <h1>예약 폼</h1>
+  <p>이름: <span id="name">불러오는 중...</span></p>
+
+  <label>
+    상품
+    <select id="plan">
+      <option value="basic">Basic</option>
+      <option value="premium">Premium</option>
+    </select>
+  </label>
+
+  <button id="saveBtn">저장</button>
+
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <script>
+    const LIFF_ID = "2009473953-5Fzd6NXy";
+
+    async function main() {
+      await liff.init({
+        liffId: LIFF_ID
+      });
+
+      const profile = await liff.getProfile();
+      document.getElementById("name").textContent = profile.displayName;
+
+      document.getElementById("saveBtn").addEventListener("click", async () => {
+        const idToken = liff.getIDToken();
+        const plan = document.getElementById("plan").value;
+
+        const res = await fetch("/api/reservation", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ idToken, plan })
+        });
+
+        const data = await res.json();
+        alert(data.message);
+
+        if (liff.isInClient()) {
+          liff.closeWindow();
+        }
+      });
+    }
+
+    main().catch(console.error);
+  </script>
+</body>
+
+</html>
