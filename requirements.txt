@@ -5,9 +5,9 @@ python-dotenv==1.2.2
 jamo
 pykakasi
 num2words
-imageio_ffmpeg==0.6.0
-fugashi==1.5.2
-unidic-lite==1.0.8
-mutagen==1.47.0
-Pillow==12.2.0
-requests==2.33.1
+imageio-ffmpeg
+mutagen
+Pillow
+requests
+fugashi
+unidic-lite

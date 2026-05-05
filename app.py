@@ -108,6 +108,11 @@ def load_verbs():
         app.logger.error(f"Error loading verbs: {e}")
     return verbs
 
+# =====================================================================
+# 사용자별 설정 DB (SQLite) - 통역/발음/음성 ON/OFF
+# H2(Java 전용) 대신 Python 내장 SQLite 사용 (동일한 임베디드 파일 DB)
+# =====================================================================
+
 DIALOG_DATA = load_dialogs()
 VERB_DATA = load_verbs()
 user_quiz_state = {} # user_id: {"correct_answer": int}
@@ -452,7 +457,6 @@ def detect_language(text):
 
 # 메시지 이벤트 핸들러 추가
 @handler.add(MessageEvent, message=TextMessageContent)
-@handler.add(MessageEvent, message=TextMessageContent)
 def handle_message(event):
     import unicodedata
     import re
@@ -461,30 +465,30 @@ def handle_message(event):
     user_input = user_input.replace('＃', '#')
     user_id = event.source.user_id
     app.logger.info(f"Received message from {user_id}: {user_input!r}  hex={user_input.encode('utf-8').hex()}")
-    setting_commands = {'#발음': ('pronunciation', '発音表示 / 발음 표시'), '#はつおん': ('pronunciation', '発音表示 / 발음 표시'), '#発音': ('pronunciation', '発音表示 / 발음 표시'), '#음성': ('voice', '音声機能 / 음성 기능'), '#おんせい': ('voice', '音声機能 / 음성 기능'), '#音声': ('voice', '音声機能 / 음성 기능'), '#통역': ('translation', '通訳機能 / 통역 기능'), '#つうやく': ('translation', '通訳機能 / 통역 기능'), '#通訳': ('translation', '通訳機能 / 통역 기능')}
+    setting_commands = {'#발음': ('pronunciation', '発音表示 / 발음 표시'), '#은성': ('voice', '音声機能 / 음성 기능'), '#통역': ('translation', '通訳機能 / 통역 기능')}
     for cmd, (key, label) in setting_commands.items():
         if user_input.startswith(cmd):
             arg = user_input[len(cmd):].strip().lower()
             settings = get_user_settings(user_id)
             if arg == 'on':
                 if settings[key]:
-                    reply_text = f'{label}: 이미 ON ✅ / すでにONです'
+                    reply_text = f'{label}: 이미 ON ✅ / すでにON입니다'
                 else:
                     set_user_setting(user_id, key, True)
                     reply_text = f'{label}: ON ✅'
             elif arg == 'off':
                 if not settings[key]:
-                    reply_text = f'{label}: 이미 OFF ❌ / すでにOFFです'
+                    reply_text = f'{label}: 이미 OFF ❌ / すでにOFF입니다'
                 else:
                     set_user_setting(user_id, key, False)
                     reply_text = f'{label}: OFF ❌'
             else:
                 status = 'ON ✅' if settings[key] else 'OFF ❌'
-                reply_text = f'{label}: 현재 {status}\n사용법 / 使い方: {cmd} on / {cmd} off'
+                reply_text = f'{label}: 현재 {status}\n사용법: {cmd} on / {cmd} off'
             line_bot_api.reply_message(ReplyMessageRequest(reply_token=event.reply_token, messages=[TextMessage(text=reply_text)]))
             return
     ai_triggers_kr = ['#인공지능']
-    ai_triggers_jp = ['#じんこうちのう', '#人工知能']
+    ai_triggers_jp = ['#じんこうちの우', '#人工知能']
     target_trigger_lang = None
     clean_input = user_input
     for trigger in ai_triggers_kr:

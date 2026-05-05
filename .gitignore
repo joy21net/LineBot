@@ -6,25 +6,14 @@ venv/
 
 # Environment and Secrets
 .env
-cert/
 cert2/
-cert_key.tar
 
-# Databases
-*.sqlite3
-
-# Executables
-ngrok.exe
-ngrok.exe.old
-
-# Generated static files
-static/*.png
+# Media and Temp Files
 static/*.m4a
+static/*.png
+static/temp_*
+*.exe.old
 
-# Temporary files
-patch_app.py
-patch_db.py
-get_translate.py
-compare_handle_message.txt
-extracted_funcs.py
-data.txt
+# Database
+*.db
+db.sqlite3
