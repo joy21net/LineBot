@@ -317,8 +317,15 @@ def generate_picture_card_jp(japanese_word):
 def get_translation_from_api(text, source_lang, target_lang):
     if source_lang == '한국어':
         instructions = '\nYou are a professional translator.\nTask: Translate Korean to Japanese.\n\nRules:\n1. Output ONLY the natural Japanese translation of the input, preserving the EXACT same line breaks, blank lines, and indentation/spacing structure as the original input.\n2. CRITICAL: Do NOT output any explanations, English text, phonetic pronunciations, or extra lines. Just the translated Japanese text.\n3. CRITICAL: The translated Japanese text MUST NOT contain any Korean characters (Hangul). Ensure a complete translation to Japanese.\n\nExample Structure:\nInput: 그래\n잘 했어\nOutput: よかった\nよくやったね\n'
-        response = client.chat.completions.create(model='gpt-5.1-chat-latest', messages=[{'role': 'system', 'content': instructions.strip()}, {'role': 'user', 'content': text}])
-        translated_japanese = response.choices[0].message.content.strip()
+        
+        for attempt in range(3):
+            response = client.chat.completions.create(model='gpt-5.1-chat-latest', messages=[{'role': 'system', 'content': instructions.strip()}, {'role': 'user', 'content': text}])
+            translated_japanese = response.choices[0].message.content.strip()
+            
+            if not re.search(r'[\uac00-\ud7a3]', translated_japanese):
+                break
+            instructions += '\n\nWARNING: Your previous translation still contained Korean characters. You MUST translate EVERY SINGLE Korean word into Japanese. Do NOT leave any Hangul untranslated!'
+
         if len(translated_japanese.splitlines()) > 3:
             return (translated_japanese, None, None)
         hangul_pronunciation = japanese_to_korean_pronunciation(translated_japanese)
@@ -326,8 +333,15 @@ def get_translation_from_api(text, source_lang, target_lang):
         return (translated_japanese, hangul_pronunciation, audio_target)
     else:
         instructions = '\nYou are a professional translator.\nTask: Translate Japanese to Korean.\n\nRules:\n1. Output ONLY the natural Korean translation of the input, preserving the EXACT same line breaks, blank lines, and indentation/spacing structure as the original input.\n2. CRITICAL: Do NOT output any explanations, English text, phonetic pronunciations, or extra lines. Just the translated Korean text.\n3. CRITICAL: The translated Korean text MUST NOT contain any Japanese characters (Hiragana, Katakana, or Kanji). Ensure a complete translation to Korean.\n'
-        response = client.chat.completions.create(model='gpt-5.1-chat-latest', messages=[{'role': 'system', 'content': instructions.strip()}, {'role': 'user', 'content': text}])
-        translated_korean = response.choices[0].message.content.strip()
+        
+        for attempt in range(3):
+            response = client.chat.completions.create(model='gpt-5.1-chat-latest', messages=[{'role': 'system', 'content': instructions.strip()}, {'role': 'user', 'content': text}])
+            translated_korean = response.choices[0].message.content.strip()
+            
+            if not re.search(r'[\u3040-\u30ff\u4e00-\u9faf]', translated_korean):
+                break
+            instructions += '\n\nWARNING: Your previous translation still contained Japanese characters. You MUST translate EVERY SINGLE Japanese word into Korean. Do NOT leave any Hiragana, Katakana, or Kanji untranslated!'
+            
         audio_target = translated_korean if len(text.splitlines()) == 1 else None
         return (translated_korean, None, audio_target)
 
